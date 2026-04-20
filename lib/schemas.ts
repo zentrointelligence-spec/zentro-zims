@@ -855,3 +855,34 @@ export const GlobalSearchApiResponseSchema = z.object({
   tasks: z.array(Task),
 });
 export type GlobalSearchApiResponse = z.infer<typeof GlobalSearchApiResponseSchema>;
+
+// -------- notifications (BFF + client) -------------------------------------
+
+export const NotificationTypeSchema = z.enum([
+  "overdue_task",
+  "renewal_due",
+  "policy_expired",
+  "new_message",
+]);
+export type NotificationType = z.infer<typeof NotificationTypeSchema>;
+
+export const NotificationSchema = z.object({
+  id: z.string(),
+  type: NotificationTypeSchema,
+  title: z.string(),
+  body: z.string(),
+  link: z.string(),
+  timestamp: z.string(),
+  read: z.boolean(),
+  priority: z.number(),
+});
+export type Notification = z.infer<typeof NotificationSchema>;
+
+/** Raw combined payload from `GET /api/zims/notifications`. */
+export const NotificationsApiResponseSchema = z.object({
+  tasks: z.array(Task),
+  renewalPolicies: z.array(Policy),
+  expiredPolicies: z.array(Policy),
+  interactions: z.array(InteractionSchema),
+});
+export type NotificationsApiResponse = z.infer<typeof NotificationsApiResponseSchema>;

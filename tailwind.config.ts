@@ -39,6 +39,15 @@ const config: Config = {
         "card-hover": "0 4px 12px rgba(0,0,0,0.08)",
         modal: "0 20px 60px rgba(0,0,0,0.12)",
       },
+      keyframes: {
+        "zentro-bell-pulse": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.3)" },
+        },
+      },
+      animation: {
+        "zentro-bell-pulse": "zentro-bell-pulse 400ms ease-out 1",
+      },
     },
   },
 };

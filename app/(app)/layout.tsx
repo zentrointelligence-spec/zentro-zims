@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/zims/app-shell";
 import { GlobalSearchHost } from "@/components/zims/GlobalSearchHost";
+import { NotificationHost } from "@/components/zims/NotificationHost";
 import { ApiError, getBillingStatus } from "@/lib/api";
 import { requireUser, clearSession } from "@/lib/auth";
 import type { PlanTier } from "@/lib/schemas";
@@ -39,6 +40,7 @@ export default async function AppLayout({
         {children}
       </AppShell>
       <GlobalSearchHost />
+      <NotificationHost />
     </>
   );
 }
