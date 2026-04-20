@@ -1,0 +1,244 @@
+import { AlertCircle, FileText } from "lucide-react";
+import Link from "next/link";
+
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { EmptyState } from "@/components/zims/empty-state";
+import { PageFade } from "@/components/zims/PageFade";
+import { StatusChip } from "@/components/zims/status-chip";
+import { api, ApiError, humanizeDetail } from "@/lib/api";
+import { PolicyStatus } from "@/lib/schemas";
+import { daysUntil, formatCurrency, formatDate } from "@/lib/utils";
+
+import { CreatePolicyDialog } from "./_components/create-policy-dialog";
+import { PolicyFilters } from "./_components/filters";
+import { ImportDialog } from "./_components/import-dialog";
+import { Pagination } from "./_components/pagination";
+import { PolicyRowActions } from "./_components/row-actions";
+import { RunRenewalsButton } from "./_components/run-renewals-button";
+
+export const metadata = { title: "Policies" };
+export const dynamic = "force-dynamic";
+
+type SearchParams = Promise<{
+  page?: string;
+  page_size?: string;
+  status?: string;
+  create?: string;
+}>;
+
+export default async function PoliciesPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const sp = await searchParams;
+  const page = clampInt(sp.page, 1, 10_000, 1);
+  const pageSize = clampInt(sp.page_size, 5, 100, 25);
+  const parsedStatus = PolicyStatus.safeParse(sp.status);
+  const status = parsedStatus.success ? parsedStatus.data : undefined;
+  const autoOpenCreate = sp.create === "1";
+
+  const [policiesRes, customersRes] = await Promise.allSettled([
+    api.policies.list({ page, page_size: pageSize, status }),
+    api.customers.list({ page: 1, page_size: 200 }),
+  ]);
+
+  if (policiesRes.status === "rejected") {
+    return <PageError err={policiesRes.reason} />;
+  }
+  const { items, total, pages } = policiesRes.value;
+  const customers =
+    customersRes.status === "fulfilled" ? customersRes.value.items : [];
+
+  const customerById = new Map(customers.map((c) => [c.id, c]));
+
+  return (
+    <div className="space-y-6">
+      <header className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end md:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold tracking-tight md:text-3xl">
+            Policies
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
+            Manage every policy in your agency. Import from Excel, run the
+            nightly renewal sweep, or create one manually.
+          </p>
+        </div>
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center md:w-auto">
+          <RunRenewalsButton />
+          <ImportDialog />
+          <CreatePolicyDialog
+            key={autoOpenCreate ? "create-open" : "create-closed"}
+            customers={customers}
+            autoOpenCreate={autoOpenCreate}
+          />
+        </div>
+      </header>
+
+      <Card>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+          <div>
+            <CardTitle>All policies</CardTitle>
+            <CardDescription>
+              {total} total · page {page} of {Math.max(pages, 1)}
+            </CardDescription>
+          </div>
+          <PolicyFilters currentStatus={status ?? "all"} pageSize={pageSize} />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <PageFade>
+            <div className="overflow-x-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Policy #</TableHead>
+                    <TableHead className="hidden md:table-cell">Customer</TableHead>
+                    <TableHead className="hidden md:table-cell">Type</TableHead>
+                    <TableHead className="hidden md:table-cell">Start</TableHead>
+                    <TableHead>Expiry</TableHead>
+                    <TableHead className="hidden text-right md:table-cell">
+                      Premium
+                    </TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="w-[40px]" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {items.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="p-0">
+                        <EmptyState
+                          title="No policies yet"
+                          description="Issue your first policy to start tracking renewals"
+                          icon={FileText}
+                          action={
+                            <Link
+                              href="/policies?create=1"
+                              className={buttonVariants()}
+                            >
+                              New policy
+                            </Link>
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                  items.map((p) => {
+                    const customer = customerById.get(p.customer_id);
+                    const dueIn = daysUntil(p.expiry_date);
+                    return (
+                      <TableRow key={p.id}>
+                        <TableCell className="font-mono text-xs">
+                          {p.policy_number}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {customer ? (
+                            <div className="flex flex-col">
+                              <span className="font-medium">
+                                {customer.name}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {customer.phone}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              #{p.customer_id}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="hidden capitalize md:table-cell">
+                          {p.policy_type}
+                        </TableCell>
+                        <TableCell className="hidden whitespace-nowrap text-sm md:table-cell">
+                          {formatDate(p.start_date)}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-sm">
+                          <div className="flex flex-col">
+                            <span>{formatDate(p.expiry_date)}</span>
+                            <span
+                              className={`text-xs ${
+                                dueIn < 0
+                                  ? "text-rose-600"
+                                  : dueIn < 30
+                                    ? "text-amber-600"
+                                    : "text-muted-foreground"
+                              }`}
+                            >
+                              {dueIn < 0
+                                ? `${Math.abs(dueIn)}d ago`
+                                : `in ${dueIn}d`}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden text-right font-mono md:table-cell">
+                          {formatCurrency(p.premium)}
+                        </TableCell>
+                        <TableCell>
+                          <StatusChip status={p.status} kind="policy" />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <PolicyRowActions policy={p} />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            <Pagination
+              page={page}
+              pages={pages}
+              total={total}
+              pageSize={pageSize}
+            />
+          </PageFade>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function clampInt(
+  v: string | undefined,
+  min: number,
+  max: number,
+  fallback: number,
+): number {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(Math.max(Math.floor(n), min), max);
+}
+
+function PageError({ err }: { err: unknown }) {
+  const msg =
+    err instanceof ApiError
+      ? humanizeDetail(err.detail) ?? err.message
+      : (err as Error)?.message ?? "Unknown error";
+  return (
+    <Card className="border-destructive/40">
+      <CardHeader className="flex flex-row items-center gap-3">
+        <AlertCircle className="h-5 w-5 text-destructive" />
+        <CardTitle>Could not load policies</CardTitle>
+      </CardHeader>
+      <CardContent className="text-sm text-muted-foreground">{msg}</CardContent>
+    </Card>
+  );
+}
