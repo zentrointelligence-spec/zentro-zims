@@ -1,4 +1,4 @@
-import { AlertCircle, FileText } from "lucide-react";
+import { AlertCircle, FileText, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/zims/empty-state";
 import { PageFade } from "@/components/zims/PageFade";
+import { PageHeader } from "@/components/zims/page-header";
 import { StatusChip } from "@/components/zims/status-chip";
 import { api, ApiError, humanizeDetail } from "@/lib/api";
 import { PolicyStatus } from "@/lib/schemas";
@@ -69,26 +70,22 @@ export default async function PoliciesPage({
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end md:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight md:text-3xl">
-            Policies
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Manage every policy in your agency. Import from Excel, run the
-            nightly renewal sweep, or create one manually.
-          </p>
-        </div>
-        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center md:w-auto">
-          <RunRenewalsButton />
-          <ImportDialog />
-          <CreatePolicyDialog
-            key={autoOpenCreate ? "create-open" : "create-closed"}
-            customers={customers}
-            autoOpenCreate={autoOpenCreate}
-          />
-        </div>
-      </header>
+      <PageHeader
+        title="Policies"
+        badge={total}
+        description="Track policies and automate renewals"
+        actions={
+          <>
+            <RunRenewalsButton />
+            <ImportDialog />
+            <CreatePolicyDialog
+              key={autoOpenCreate ? "create-open" : "create-closed"}
+              customers={customers}
+              autoOpenCreate={autoOpenCreate}
+            />
+          </>
+        }
+      />
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">
@@ -142,7 +139,17 @@ export default async function PoliciesPage({
                     const customer = customerById.get(p.customer_id);
                     const dueIn = daysUntil(p.expiry_date);
                     return (
-                      <TableRow key={p.id}>
+                      <TableRow
+                        key={p.id}
+                        className={
+                          p.status === "expired"
+                            ? "bg-red-50/60"
+                            : (p.status === "renewal_due" || p.status === "active") &&
+                                dueIn <= 7
+                              ? "bg-amber-50/60"
+                              : ""
+                        }
+                      >
                         <TableCell className="font-mono text-xs">
                           {p.policy_number}
                         </TableCell>
@@ -170,20 +177,24 @@ export default async function PoliciesPage({
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-sm">
                           <div className="flex flex-col">
-                            <span>{formatDate(p.expiry_date)}</span>
-                            <span
-                              className={`text-xs ${
-                                dueIn < 0
-                                  ? "text-rose-600"
-                                  : dueIn < 30
-                                    ? "text-amber-600"
-                                    : "text-muted-foreground"
-                              }`}
-                            >
-                              {dueIn < 0
-                                ? `${Math.abs(dueIn)}d ago`
-                                : `in ${dueIn}d`}
-                            </span>
+                            {dueIn < 0 || p.status === "expired" ? (
+                              <span className="inline-flex w-fit rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                                Expired
+                              </span>
+                            ) : dueIn <= 7 ? (
+                              <span className="inline-flex items-center gap-1 text-sm font-semibold text-red-600">
+                                <TriangleAlert className="h-3.5 w-3.5" />
+                                {dueIn} days
+                              </span>
+                            ) : dueIn <= 30 ? (
+                              <span className="text-sm font-medium text-amber-600">
+                                {dueIn} days
+                              </span>
+                            ) : (
+                              <span className="text-sm text-slate-600">
+                                {formatDate(p.expiry_date)}
+                              </span>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="hidden text-right font-mono md:table-cell">

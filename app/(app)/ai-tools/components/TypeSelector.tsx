@@ -75,10 +75,10 @@ export function TypeSelector({
             aria-selected={selected}
             onClick={() => onSelect(item.type)}
             className={cn(
-              "flex w-[min(260px,85vw)] shrink-0 snap-start cursor-pointer flex-col gap-1 rounded-md border bg-card p-3 text-left transition-colors md:w-full",
+              "flex w-[min(260px,85vw)] shrink-0 snap-start cursor-pointer flex-col gap-1 rounded-xl border border-slate-200 bg-white p-3 text-left transition-colors md:w-full",
               "border-border hover:bg-muted/50",
               selected &&
-                "border-2 border-indigo-500 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-950/30",
+                "border-2 border-brand-400 border-l-4 border-l-brand-500 bg-brand-50 dark:border-indigo-500 dark:bg-indigo-950/30",
               !selected && "border",
             )}
           >

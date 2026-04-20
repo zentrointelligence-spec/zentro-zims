@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Pencil } from "lucide-react";
+import {
+  ArrowLeft,
+  Mail,
+  MapPin,
+  Pencil,
+  Phone,
+  ShieldCheck,
+} from "lucide-react";
 import { useState } from "react";
 
 import { CustomerForm } from "../../components/CustomerForm";
@@ -9,7 +16,6 @@ import { LinkedPolicies } from "./LinkedPolicies";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -29,15 +35,6 @@ function initials(name: string) {
   if (parts.length === 1) return parts[0]!.slice(0, 1).toUpperCase();
   return (
     (parts[0]!.slice(0, 1) + parts[parts.length - 1]!.slice(0, 1)).toUpperCase()
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:items-baseline">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      <span className="text-sm text-foreground">{value}</span>
-    </div>
   );
 }
 
@@ -85,25 +82,51 @@ export function CustomerProfile({
       </div>
 
       <Card className="rounded-lg border bg-card p-6 shadow-sm">
-        <CardHeader className="flex flex-row flex-wrap items-start gap-4 space-y-0 p-0">
-          <div
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-indigo-600 text-sm font-semibold text-white"
-            aria-hidden
-          >
-            {initials(customer.name)}
+        <CardHeader className="flex flex-col gap-5 space-y-0 p-0 md:flex-row md:items-start md:justify-between">
+          <div className="flex min-w-0 items-start gap-4">
+            <div
+              className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-brand-600 text-xl font-bold text-white"
+              aria-hidden
+            >
+              {initials(customer.name)}
+            </div>
+            <div className="min-w-0">
+              <CardTitle className="text-[20px] font-bold leading-tight tracking-tight text-slate-900">
+                {customer.name}
+              </CardTitle>
+              <CardDescription className="sr-only">Contact details</CardDescription>
+              <div className="mt-3 space-y-2 text-[13px] text-slate-600">
+                <p className="inline-flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-slate-400" />
+                  {displayPhone(customer.phone)}
+                </p>
+                <p className="inline-flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-slate-400" />
+                  {displayEmail(customer.email)}
+                </p>
+                <p className="inline-flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-slate-400" />
+                  {displayAddress(customer.address)}
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="min-w-0 flex-1 space-y-1">
-            <CardTitle className="text-xl font-medium leading-tight tracking-tight">
-              {customer.name}
-            </CardTitle>
-            <CardDescription className="sr-only">Contact details</CardDescription>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <span className="rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-700">
+              {policies.length} policies
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+              {policies[0] ? (
+                <span className="inline-flex items-center gap-1">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  {policies[0].status.replace(/_/g, " ")}
+                </span>
+              ) : (
+                "No policy status"
+              )}
+            </span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3 p-0 pt-6">
-          <Row label="Phone" value={displayPhone(customer.phone)} />
-          <Row label="Email" value={displayEmail(customer.email)} />
-          <Row label="Address" value={displayAddress(customer.address)} />
-        </CardContent>
       </Card>
 
       <LinkedPolicies customerId={customer.id} policies={policies} />

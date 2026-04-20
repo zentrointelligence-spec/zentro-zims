@@ -1,6 +1,6 @@
 "use client";
 
-import { Users } from "lucide-react";
+import { Clipboard, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
@@ -30,6 +30,25 @@ function displayPhone(phone: string) {
 function displayEmail(email: string | null | undefined) {
   if (!email) return "—";
   return email;
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "??";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
+}
+
+function avatarTone(name: string): string {
+  const tones = [
+    "bg-brand-500",
+    "bg-brand-600",
+    "bg-blue-500",
+    "bg-teal-500",
+    "bg-violet-500",
+  ];
+  const ch = name.trim().charCodeAt(0) || 0;
+  return tones[ch % tones.length]!;
 }
 
 export function CustomersTable({
@@ -119,13 +138,14 @@ export function CustomersTable({
                 <TableHead>Name</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Policies</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell colSpan={5} className="p-0">
+                <TableCell colSpan={6} className="p-0">
                   <EmptyState
                     title="No customers yet"
                     description="Customers are created when you convert a lead or add one manually"
@@ -150,13 +170,14 @@ export function CustomersTable({
                 <TableHead>Name</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Policies</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell colSpan={5} className="p-0">
+                <TableCell colSpan={6} className="p-0">
                   <div className="flex flex-col items-center justify-center gap-3 py-14 text-center text-sm text-muted-foreground">
                     No customers match your filters.
                   </div>
@@ -166,9 +187,10 @@ export function CustomersTable({
           </Table>
         ) : (
           <DataTable
-            columns={["Name", "Phone", "Email", "Created At", "Actions"]}
+            columns={["Name", "Phone", "Email", "Policies", "Created At", "Actions"]}
             columnHeaderClassName={[
               "",
+              "hidden md:table-cell",
               "hidden md:table-cell",
               "hidden md:table-cell",
               "hidden md:table-cell",
@@ -178,18 +200,48 @@ export function CustomersTable({
             {customers.map((c) => (
               <TableRow key={c.id}>
                 <TableCell className="px-0 py-2.5">
-                  <Link
-                    href={`/customers/${c.id}`}
-                    className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold text-white ${avatarTone(c.name)}`}
+                    >
+                      {initials(c.name)}
+                    </span>
+                    <Link
+                      href={`/customers/${c.id}`}
+                      className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
+                    >
+                      {c.name}
+                    </Link>
+                  </div>
+                </TableCell>
+                <TableCell className="group hidden px-0 py-2.5 text-sm text-muted-foreground md:table-cell">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5"
+                    onClick={() =>
+                      navigator.clipboard.writeText(displayPhone(c.phone))
+                    }
                   >
-                    {c.name}
-                  </Link>
+                    <span>{displayPhone(c.phone)}</span>
+                    <Clipboard className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                  </button>
                 </TableCell>
-                <TableCell className="hidden px-0 py-2.5 text-sm text-muted-foreground md:table-cell">
-                  {displayPhone(c.phone)}
+                <TableCell className="group hidden max-w-[220px] truncate px-0 py-2.5 text-sm text-muted-foreground md:table-cell">
+                  <button
+                    type="button"
+                    className="inline-flex max-w-full items-center gap-1.5"
+                    onClick={() =>
+                      navigator.clipboard.writeText(displayEmail(c.email))
+                    }
+                  >
+                    <span className="truncate">{displayEmail(c.email)}</span>
+                    <Clipboard className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+                  </button>
                 </TableCell>
-                <TableCell className="hidden max-w-[220px] truncate px-0 py-2.5 text-sm text-muted-foreground md:table-cell">
-                  {displayEmail(c.email)}
+                <TableCell className="hidden px-0 py-2.5 md:table-cell">
+                  <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-semibold text-brand-700">
+                    —
+                  </span>
                 </TableCell>
                 <TableCell className="hidden px-0 py-2.5 text-sm text-muted-foreground tabular-nums md:table-cell">
                   {formatDate(c.created_at)}

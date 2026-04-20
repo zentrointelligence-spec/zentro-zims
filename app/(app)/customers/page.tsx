@@ -59,7 +59,8 @@ export default async function CustomersPage({
     <div className="space-y-6">
       <PageHeader
         title="Customers"
-        description="Every customer in your book — contacts, policies and renewal context."
+        badge={total}
+        description="Manage your client relationships"
         actions={
           <CustomerCreateLauncher
             key={autoOpenCreate ? "create-open" : "create-closed"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { UserPlus } from "lucide-react";
+import { ShieldCheck, User as UserIcon, UserPlus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 
@@ -46,8 +46,13 @@ function RoleBadge({ role }: { role: User["role"] }) {
       : "bg-[#dbeafe] text-[#1d4ed8]";
   return (
     <span
-      className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${styles}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold capitalize ${styles}`}
     >
+      {role === "admin" ? (
+        <ShieldCheck className="h-3 w-3" />
+      ) : (
+        <UserIcon className="h-3 w-3" />
+      )}
       {role}
     </span>
   );
@@ -103,7 +108,8 @@ export function TeamTable({
     <div className="space-y-6">
       <PageHeader
         title="Team"
-        description="Invite agents and manage who can access your agency workspace."
+        badge={total}
+        description="Manage your agency team and permissions"
         actions={
           <Button type="button" onClick={() => setInviteOpen(true)}>
             <UserPlus className="mr-1.5 h-4 w-4" />
@@ -170,12 +176,22 @@ export function TeamTable({
                       <TableCell className="px-0 py-2.5">
                         <div className="flex items-center gap-3">
                           <div
-                            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#4f46e5] text-[12px] font-semibold text-white"
+                            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#4f46e5] text-[12px] font-semibold text-white"
                             aria-hidden
                           >
                             {initials(u.name)}
                           </div>
-                          <span className="font-medium text-foreground">{u.name}</span>
+                          <span className="flex flex-col">
+                            <span className="text-[13px] font-medium text-foreground">
+                              {u.name}
+                              {u.id === currentUserId ? (
+                                <span className="ml-1 text-[11px] font-normal text-slate-400">
+                                  (You)
+                                </span>
+                              ) : null}
+                            </span>
+                            <span className="text-[11px] text-slate-400 md:hidden">{u.email}</span>
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell className="hidden px-0 py-2.5 text-sm text-muted-foreground md:table-cell">

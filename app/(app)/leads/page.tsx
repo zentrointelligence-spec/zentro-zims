@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PageHeader } from "@/components/zims/page-header";
 import { apiFetch, ApiError, humanizeDetail } from "@/lib/api";
 import { Lead as LeadSchema, LeadStatus, Paginated } from "@/lib/schemas";
 
@@ -63,19 +64,17 @@ export default async function LeadsPage({
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Leads</h1>
-          <p className="text-muted-foreground mt-1">
-            Track prospects from first contact through conversion. Search,
-            filter by status, and convert qualified leads to customers.
-          </p>
-        </div>
-        <LeadForm
-          key={autoOpenCreate ? "create-open" : "create-closed"}
-          autoOpenCreate={autoOpenCreate}
-        />
-      </header>
+      <PageHeader
+        title="Leads"
+        badge={total}
+        description="Track and manage your sales pipeline"
+        actions={
+          <LeadForm
+            key={autoOpenCreate ? "create-open" : "create-closed"}
+            autoOpenCreate={autoOpenCreate}
+          />
+        }
+      />
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">

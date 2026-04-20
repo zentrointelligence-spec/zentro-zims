@@ -73,13 +73,13 @@ export function OutputPanel({
   }
 
   return (
-    <div className="flex min-h-[200px] flex-col rounded-lg border border-border bg-card p-5">
+    <div className="flex min-h-[200px] flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-card">
       <textarea
         ref={taRef}
         readOnly
         value={content}
         className={cn(
-          "w-full resize-none border-0 bg-transparent text-sm leading-relaxed text-foreground outline-none focus:outline-none",
+          "w-full min-h-[120px] resize-none rounded-xl border-l-4 border-l-brand-300 bg-slate-50 p-4 text-[13px] leading-[1.8] text-slate-800 outline-none focus:outline-none",
           "min-h-[120px]",
         )}
         aria-label="Generated content"
@@ -89,7 +89,7 @@ export function OutputPanel({
           type="button"
           variant="outline"
           size="sm"
-          className="h-8 text-[13px]"
+          className="h-8 rounded-lg border-brand-200 bg-brand-50 text-[11px] text-brand-600"
           onClick={() => void handleCopy()}
         >
           {copied ? "Copied!" : "Copy"}
@@ -97,8 +97,7 @@ export function OutputPanel({
         <Button
           type="button"
           size="sm"
-          className="h-8 border-0 text-[13px] text-white"
-          style={{ backgroundColor: "#25d366" }}
+          className="h-8 rounded-lg border border-green-200 bg-green-50 text-[11px] text-green-700 hover:bg-green-100"
           onClick={handleWhatsApp}
         >
           Send via WhatsApp

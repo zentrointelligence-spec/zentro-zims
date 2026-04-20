@@ -28,6 +28,7 @@ export function LeadSelector({
   onSelect: (id: number | null) => void;
 }) {
   const [q, setQ] = useState("");
+  const [nowTs] = useState(() => Date.now());
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return leads;
@@ -37,11 +38,13 @@ export function LeadSelector({
   return (
     <aside className="flex h-full min-h-[240px] w-full shrink-0 flex-col border-b border-border bg-background md:h-full md:min-h-0 md:w-[320px] md:border-b-0 md:border-r-0">
       <div className="shrink-0 border-b border-border p-3">
+        <p className="mb-2 text-[13px] font-semibold text-slate-700">Conversations</p>
         <Input
           placeholder="Search leads…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           aria-label="Search leads"
+          className="h-9 rounded-lg border-0 bg-slate-100 placeholder:text-slate-400"
         />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -71,13 +74,13 @@ export function LeadSelector({
                     type="button"
                     onClick={() => onSelect(lead.id)}
                     className={cn(
-                      "flex h-16 w-full items-center gap-3 px-3 text-left transition-colors hover:bg-muted/60",
+                      "flex h-[60px] w-full items-center gap-3 px-3 text-left transition-colors hover:bg-muted/60",
                       active &&
-                        "border-l-[3px] border-l-indigo-600 bg-[#eef2ff] hover:bg-[#eef2ff]",
+                        "border-l-[3px] border-l-brand-500 bg-brand-50 hover:bg-brand-50",
                       !active && "border-l-[3px] border-l-transparent",
                     )}
                   >
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
+                    <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-xs font-semibold text-white">
                       {initials(lead.name)}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -95,6 +98,9 @@ export function LeadSelector({
                         Last message preview
                       </span>
                     </span>
+                    {nowTs - new Date(lead.updated_at).getTime() < 1000 * 60 * 60 * 24 * 3 ? (
+                      <span className="h-1.5 w-1.5 rounded-full bg-brand-500" aria-hidden />
+                    ) : null}
                   </button>
                 </li>
               );

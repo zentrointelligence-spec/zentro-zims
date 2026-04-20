@@ -61,9 +61,9 @@ export function LeadRowActions({ lead }: { lead: Lead }) {
       <div className="flex flex-wrap items-center justify-end gap-1">
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-8"
+          className="h-8 text-green-700 hover:bg-green-50 hover:text-green-700"
           disabled={busy || lead.status === "converted"}
           onClick={() => convertMutation.mutate()}
           title={
@@ -77,7 +77,7 @@ export function LeadRowActions({ lead }: { lead: Lead }) {
           ) : (
             <UserPlus className="h-3.5 w-3.5" />
           )}
-          <span className="ml-1 hidden sm:inline">Convert</span>
+          <span className="ml-1 hidden sm:inline">Convert →</span>
         </Button>
         <Button
           type="button"

@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PlanTier } from "@/lib/schemas";
@@ -35,7 +36,7 @@ export function PlanTiersCard({
   }
 
   return (
-    <section className="rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-6 text-card-foreground shadow-card">
       <h2 className="text-lg font-semibold tracking-tight">Available plans</h2>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Starter */}
@@ -63,8 +64,8 @@ export function PlanTiersCard({
         </div>
 
         {/* Growth — featured */}
-        <div className="relative flex flex-col rounded-lg border-2 border-indigo-500 bg-background p-4 pt-8 shadow-sm">
-          <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+        <div className="relative flex flex-col rounded-lg border border-brand-400 bg-background p-4 pt-8 shadow-sm">
+          <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
             Most popular
           </span>
           <h3 className="text-base font-semibold text-indigo-900 dark:text-indigo-100">
@@ -74,14 +75,14 @@ export function PlanTiersCard({
             $79/month
           </p>
           <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
-            <li>• 10 users</li>
-            <li>• Unlimited leads and policies</li>
-            <li>• Everything in Starter</li>
-            <li>• Live WhatsApp sending</li>
-            <li>• Birthday and renewal automation</li>
-            <li>• Quotation system</li>
-            <li>• Analytics and reporting</li>
-            <li>• Document storage 5GB</li>
+            <li className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-green-500" /> 10 users</li>
+            <li className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-green-500" /> Unlimited leads and policies</li>
+            <li className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-green-500" /> Everything in Starter</li>
+            <li className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-green-500" /> Live WhatsApp sending</li>
+            <li className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-green-500" /> Birthday and renewal automation</li>
+            <li className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-green-500" /> Quotation system</li>
+            <li className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-green-500" /> Analytics and reporting</li>
+            <li className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-green-500" /> Document storage 5GB</li>
           </ul>
           <div className="mt-4">
             {currentPlan === "growth" ? (

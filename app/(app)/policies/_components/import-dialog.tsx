@@ -74,7 +74,14 @@ export function ImportDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogTrigger render={<Button variant="outline" />}>
+      <DialogTrigger
+        render={
+          <Button
+            variant="outline"
+            className="border-brand-600 text-brand-600 hover:bg-brand-50"
+          />
+        }
+      >
         <Upload className="mr-1.5 h-4 w-4" />
         Import Excel
       </DialogTrigger>

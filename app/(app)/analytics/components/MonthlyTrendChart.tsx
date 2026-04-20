@@ -32,8 +32,9 @@ export function MonthlyTrendChart({ monthly }: { monthly: AnalyticsMonthlyRow[] 
     );
 
   return (
-    <div className="rounded-lg border border-border bg-background p-5">
-      <h2 className="text-sm font-medium text-foreground">Monthly activity</h2>
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
+      <h2 className="text-sm font-semibold text-slate-900">Monthly activity</h2>
+      <p className="mt-1 text-xs text-slate-400">Revenue and lead momentum vs last month</p>
       <div className="relative mt-3 min-h-[280px] w-full">
         {empty ? (
           <div className="flex h-[280px] items-center justify-center text-sm text-muted-foreground">
@@ -75,7 +76,7 @@ export function MonthlyTrendChart({ monthly }: { monthly: AnalyticsMonthlyRow[] 
                   const row = payload[0]?.payload as Row | undefined;
                   if (!row) return null;
                   return (
-                    <div className="rounded-md border border-border bg-popover px-3 py-2 text-xs shadow-md">
+                    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-modal">
                       <p className="mb-1 font-medium text-foreground">{label}</p>
                       <p className="text-muted-foreground">
                         Leads created:{" "}
@@ -107,28 +108,31 @@ export function MonthlyTrendChart({ monthly }: { monthly: AnalyticsMonthlyRow[] 
               />
               <Bar
                 yAxisId="left"
-                dataKey="leads_created"
-                name="Leads created"
-                fill="#6366f1"
+                dataKey="policies_created"
+                name="Policies created"
+                fill="#e2e8f0"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={28}
               />
-              <Bar
+              <Line
                 yAxisId="left"
-                dataKey="policies_created"
-                name="Policies created"
-                fill="#3b82f6"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={28}
+                type="monotone"
+                dataKey="leads_created"
+                name="Leads"
+                stroke="#14b8a6"
+                strokeDasharray="4 4"
+                strokeWidth={2}
+                dot={{ r: 2, fill: "#14b8a6" }}
+                activeDot={{ r: 4 }}
               />
               <Line
                 yAxisId="right"
                 type="monotone"
                 dataKey="revenue"
                 name="Revenue"
-                stroke="#16a34a"
+                stroke="#6366f1"
                 strokeWidth={2}
-                dot={{ r: 3, fill: "#16a34a" }}
+                dot={{ r: 3, fill: "#6366f1" }}
                 activeDot={{ r: 4 }}
               />
             </ComposedChart>

@@ -38,6 +38,26 @@ function segmentLabel(b: Broadcast): string {
   }
 }
 
+function segmentPill(b: Broadcast): { label: string; cls: string } {
+  switch (b.target_segment) {
+    case "all":
+      return { label: "All customers", cls: "bg-slate-100 text-slate-700" };
+    case "renewal_due":
+      return { label: "Renewal due", cls: "bg-amber-100 text-amber-700" };
+    case "expired":
+      return { label: "Expired", cls: "bg-red-100 text-red-700" };
+    case "birthday_this_month":
+      return { label: "Birthdays", cls: "bg-pink-100 text-pink-700" };
+    case "by_policy_type":
+      return {
+        label: `Policy: ${b.policy_type_filter?.trim() || "—"}`,
+        cls: "bg-blue-100 text-blue-700",
+      };
+    default:
+      return { label: segmentLabel(b), cls: "bg-slate-100 text-slate-700" };
+  }
+}
+
 function sentFailedLabel(b: Broadcast): string {
   if (b.status === "sent" || b.status === "failed") {
     return `${b.sent_count.toLocaleString()} sent, ${b.failed_count.toLocaleString()} failed`;
@@ -111,10 +131,15 @@ export function BroadcastsTable({
               </TableRow>
             ) : (
               broadcasts.map((b) => (
-                <TableRow key={b.id}>
+                <TableRow
+                  key={b.id}
+                  className={b.status === "sending" ? "border-l-[3px] border-l-brand-400" : ""}
+                >
                   <TableCell className="font-medium">{b.name}</TableCell>
                   <TableCell className="hidden max-w-[220px] text-sm text-muted-foreground md:table-cell">
-                    {segmentLabel(b)}
+                    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${segmentPill(b).cls}`}>
+                      {segmentPill(b).label}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <BroadcastStatusChip status={b.status} />

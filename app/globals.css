@@ -53,35 +53,50 @@
 /* -------------------------------------------------------------------------- */
 
 :root {
+  --color-app-bg: #f8fafc;
+  --color-card: #ffffff;
+  --color-surface: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --radius-card: 14px;
+  --radius-modal: 20px;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --transition: 150ms ease;
+
   /* Mesh blobs (low chroma zinc + hint of indigo) */
   --mesh-1: oklch(0.94 0.02 277 / 0.45);
   --mesh-2: oklch(0.92 0.015 260 / 0.35);
   --mesh-3: oklch(0.96 0.008 286 / 0.5);
 
-  --background: oklch(0.978 0.006 286);
-  --foreground: oklch(0.22 0.02 286);
+  --background: #f8fafc;
+  --foreground: #0f172a;
 
-  --card: oklch(0.998 0.002 286);
-  --card-foreground: oklch(0.22 0.02 286);
-  --popover: oklch(0.998 0.002 286);
-  --popover-foreground: oklch(0.22 0.02 286);
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
 
-  --primary: oklch(0.505 0.22 277);
-  --primary-foreground: oklch(0.99 0.005 286);
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.955 0.008 286);
-  --secondary-foreground: oklch(0.28 0.02 286);
+  --secondary: #f1f5f9;
+  --secondary-foreground: #334155;
 
-  --muted: oklch(0.948 0.008 286);
-  --muted-foreground: oklch(0.48 0.02 286);
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
 
-  --accent: oklch(0.935 0.012 286);
-  --accent-foreground: oklch(0.22 0.02 286);
+  --accent: #eef2ff;
+  --accent-foreground: #312e81;
 
   --destructive: oklch(0.55 0.22 25);
-  --border: oklch(0.90 0.01 286);
-  --input: oklch(0.90 0.01 286);
-  --ring: oklch(0.55 0.2 277);
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #6366f1;
 
   --chart-1: oklch(0.55 0.2 277);
   --chart-2: oklch(0.62 0.16 277);
@@ -89,17 +104,17 @@
   --chart-4: oklch(0.72 0.1 270);
   --chart-5: oklch(0.48 0.02 286);
 
-  --radius: 0.625rem;
+  --radius: 0.875rem;
 
   /* Light rail — soft neutral panel */
-  --sidebar: oklch(0.99 0.004 286);
-  --sidebar-foreground: oklch(0.26 0.02 286);
-  --sidebar-primary: oklch(0.505 0.22 277);
-  --sidebar-primary-foreground: oklch(0.99 0.005 286);
-  --sidebar-accent: oklch(0.94 0.015 286);
-  --sidebar-accent-foreground: oklch(0.22 0.02 286);
-  --sidebar-border: oklch(0.90 0.01 286);
-  --sidebar-ring: oklch(0.55 0.2 277);
+  --sidebar: #0f172a;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #e0e7ff;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #e2e8f0;
+  --sidebar-border: #1f2937;
+  --sidebar-ring: #6366f1;
 }
 
 .dark {
@@ -160,6 +175,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     position: relative;
+    background-color: var(--color-app-bg);
   }
 
   /* Soft ambient mesh — stays subtle in light, richer in dark */
@@ -196,6 +212,49 @@
     background-image:
       linear-gradient(oklch(1 0 0 / 0.04) 1px, transparent 1px),
       linear-gradient(90deg, oklch(1 0 0 / 0.04) 1px, transparent 1px);
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    transition: all var(--transition);
+  }
+}
+
+@layer components {
+  .card {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-hover {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .page-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 1.5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
   }
 }
 

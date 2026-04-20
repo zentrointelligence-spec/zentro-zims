@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
 import type { TaskStatus, TaskType } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
@@ -58,50 +57,48 @@ export function TaskFilters({
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-2 text-xs font-medium text-muted-foreground">Status</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="inline-flex flex-wrap gap-1 rounded-[10px] border border-slate-200 bg-slate-50 p-1">
           {STATUS_FILTERS.map((f) => {
             const active = currentStatus === f.value;
             return (
-              <Button
+              <button
                 key={f.value}
                 type="button"
-                size="sm"
-                variant={active ? "default" : "outline"}
                 disabled={pending}
                 onClick={() => setStatus(f.value)}
                 className={cn(
-                  "text-xs font-medium transition-all duration-150 ease-in-out",
+                  "rounded-[8px] px-[14px] py-[6px] text-[13px] font-medium transition-all duration-150 ease-in-out",
                   active &&
-                    "border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700",
+                    "border border-brand-200 bg-white text-brand-600 shadow-sm",
+                  !active && "text-slate-500 hover:text-slate-700",
                 )}
               >
                 {f.label}
-              </Button>
+              </button>
             );
           })}
         </div>
       </div>
       <div>
         <p className="mb-2 text-xs font-medium text-muted-foreground">Type</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="inline-flex flex-wrap gap-1 rounded-[10px] border border-slate-200 bg-slate-50 p-1">
           {TYPE_FILTERS.map((f) => {
             const active = currentType === f.value;
             return (
-              <Button
+              <button
                 key={f.value}
                 type="button"
-                size="sm"
-                variant={active ? "default" : "outline"}
                 disabled={pending}
                 onClick={() => setType(f.value)}
                 className={cn(
-                  "text-xs font-medium transition-all duration-150 ease-in-out",
+                  "rounded-[8px] px-[14px] py-[6px] text-[13px] font-medium transition-all duration-150 ease-in-out",
                   active &&
-                    "border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700",
+                    "border border-brand-200 bg-white text-brand-600 shadow-sm",
+                  !active && "text-slate-500 hover:text-slate-700",
                 )}
               >
                 {f.label}
-              </Button>
+              </button>
             );
           })}
         </div>

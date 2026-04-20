@@ -25,11 +25,10 @@ export function StepProgress({ currentStep }: { currentStep: number }) {
               <div
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-150 ease-in-out",
-                  done &&
-                    "border-indigo-600 bg-indigo-600 text-white shadow-sm",
+                  done && "border-brand-500 bg-brand-500 text-white shadow-sm",
                   active &&
                     !done &&
-                    "border-indigo-600 bg-indigo-600 text-white shadow-sm",
+                    "border-brand-500 bg-brand-500 text-white shadow-sm ring-4 ring-brand-100",
                   !done &&
                     !active &&
                     "border-muted-foreground/30 bg-background text-muted-foreground",

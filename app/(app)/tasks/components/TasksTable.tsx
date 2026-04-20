@@ -1,6 +1,12 @@
 "use client";
 
-import { CheckSquare } from "lucide-react";
+import {
+  CheckSquare,
+  MessageCircle,
+  MoreHorizontal,
+  Phone,
+  RefreshCw,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
@@ -37,6 +43,13 @@ function typePillClass(type: TaskType): string {
     default:
       return "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700";
   }
+}
+
+function TypeIcon({ type }: { type: TaskType }) {
+  if (type === "followup") return <MessageCircle className="h-3 w-3" />;
+  if (type === "renewal") return <RefreshCw className="h-3 w-3" />;
+  if (type === "call") return <Phone className="h-3 w-3" />;
+  return <MoreHorizontal className="h-3 w-3" />;
 }
 
 function typeLabel(type: TaskType): string {
@@ -201,17 +214,26 @@ export function TasksTable({
                 const ds = displayStatus(task);
                 const overdue = isOverdue(task.due_date, ds);
                 return (
-                  <TableRow key={task.id}>
-                    <TableCell className="px-0 py-2.5 align-middle text-sm font-semibold">
+                  <TableRow
+                    key={task.id}
+                    className={cn(overdue && "border-l-[3px] border-l-red-400")}
+                  >
+                    <TableCell
+                      className={cn(
+                        "px-0 py-2.5 align-middle text-sm font-semibold",
+                        overdue ? "text-red-600" : "",
+                      )}
+                    >
                       {task.title}
                     </TableCell>
                     <TableCell className="hidden px-0 py-2.5 align-middle md:table-cell">
                       <span
                         className={cn(
-                          "inline-flex rounded-full border px-2.5 py-0.5 text-[12px] font-medium capitalize transition-colors duration-150 ease-in-out",
+                          "inline-flex items-center gap-1 rounded-full border px-2 py-[3px] text-[11px] font-medium capitalize transition-colors duration-150 ease-in-out",
                           typePillClass(task.type),
                         )}
                       >
+                        <TypeIcon type={task.type} />
                         {typeLabel(task.type)}
                       </span>
                     </TableCell>
@@ -219,7 +241,7 @@ export function TasksTable({
                       <div className="flex flex-wrap items-center gap-2 whitespace-nowrap">
                         <span>{formatDate(task.due_date)}</span>
                         {overdue ? (
-                          <span className="inline-flex rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-medium text-white">
+                          <span className="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
                             Overdue
                           </span>
                         ) : null}

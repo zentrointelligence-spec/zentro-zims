@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Building2 } from "lucide-react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
@@ -102,11 +103,20 @@ export function AgencyProfileForm({ settings }: { settings: AgencySettings }) {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
-      <h2 className="text-[15px] font-semibold tracking-tight">Agency profile</h2>
-      <p className="text-[13px] text-muted-foreground mb-5 mt-1">
-        Your agency contact details and branding
-      </p>
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-card">
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-500">
+            <Building2 className="h-4 w-4" />
+          </span>
+          <div>
+            <h2 className="text-[15px] font-semibold tracking-tight text-slate-900">Agency profile</h2>
+            <p className="mt-1 text-[13px] text-slate-500">
+              Your agency contact details and branding
+            </p>
+          </div>
+        </div>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -180,7 +190,7 @@ export function AgencyProfileForm({ settings }: { settings: AgencySettings }) {
               type="submit"
               disabled={pending}
               className={cn(
-                "h-9 min-w-[140px] bg-indigo-600 text-white hover:bg-indigo-700",
+                "h-8 min-w-[140px] bg-gradient-to-br from-brand-500 to-brand-600 text-white hover:brightness-110",
               )}
             >
               {pending ? (

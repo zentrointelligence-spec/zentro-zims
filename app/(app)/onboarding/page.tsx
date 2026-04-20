@@ -68,7 +68,7 @@ function OnboardingWizardBody() {
 
       <div className="mx-auto flex min-h-full max-w-[560px] flex-col px-4 py-12 sm:px-6 sm:py-16">
         <div
-          className="w-full rounded-2xl border border-border/60 bg-white p-10 shadow-sm transition-shadow duration-150 ease-in-out"
+          className="w-full rounded-2xl border border-border/60 bg-white p-10 shadow-modal transition-shadow duration-150 ease-in-out"
           style={{ minHeight: 480 }}
         >
           <div className="mb-8 flex justify-center">

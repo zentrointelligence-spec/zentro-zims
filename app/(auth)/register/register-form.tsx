@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -13,7 +14,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -73,80 +73,121 @@ export function RegisterForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className="space-y-5"
         noValidate
       >
         <FormField
           control={form.control}
           name="agency_name"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Agency name</FormLabel>
+              <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
+                Agency name
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Mumbai Insurance Co." {...field} />
+                <Input
+                  placeholder="Mumbai Insurance Co."
+                  className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              {fieldState.error?.message ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldState.error.message}
+                </p>
+              ) : null}
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="admin_name"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Your name</FormLabel>
+              <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
+                Your name
+              </FormLabel>
               <FormControl>
-                <Input autoComplete="name" placeholder="Priya Mehta" {...field} />
+                <Input
+                  autoComplete="name"
+                  placeholder="Priya Mehta"
+                  className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              {fieldState.error?.message ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldState.error.message}
+                </p>
+              ) : null}
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="admin_email"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
+                Email
+              </FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   autoComplete="email"
                   placeholder="priya@agency.com"
+                  className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              {fieldState.error?.message ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldState.error.message}
+                </p>
+              ) : null}
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="admin_password"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
+                Password
+              </FormLabel>
               <FormControl>
                 <Input
                   type="password"
                   autoComplete="new-password"
                   placeholder="At least 8 characters"
+                  className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              {fieldState.error?.message ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldState.error.message}
+                </p>
+              ) : null}
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="subscription_plan"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Plan</FormLabel>
+              <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
+                Plan
+              </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20">
                     <SelectValue />
                   </SelectTrigger>
                 </FormControl>
@@ -156,12 +197,28 @@ export function RegisterForm() {
                   <SelectItem value="growth">Growth — $79/seat</SelectItem>
                 </SelectContent>
               </Select>
-              <FormMessage />
+              {fieldState.error?.message ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldState.error.message}
+                </p>
+              ) : null}
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Creating workspace…" : "Create workspace"}
+        <Button
+          type="submit"
+          className="mt-2 h-11 w-full rounded-[10px] border-0 bg-linear-to-br from-brand-500 to-brand-600 text-sm font-semibold text-white shadow-sm hover:brightness-110 hover:scale-[1.01] active:scale-[0.99]"
+          disabled={pending}
+        >
+          {pending ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Creating workspace…
+            </span>
+          ) : (
+            "Create workspace"
+          )}
         </Button>
       </form>
     </Form>

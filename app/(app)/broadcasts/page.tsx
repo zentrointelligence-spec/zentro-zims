@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PageHeader } from "@/components/zims/page-header";
 import { getBroadcasts, ApiError, humanizeDetail } from "@/lib/api";
 import { BroadcastStatusSchema, type BroadcastStatus } from "@/lib/schemas";
 
@@ -91,15 +92,10 @@ export default async function BroadcastsPage({
   if (!load.ok) {
     return (
       <div className="space-y-6">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Broadcasts</h1>
-            <p className="text-muted-foreground mt-1 max-w-2xl">
-              Send WhatsApp campaigns to customer segments. Drafts can be
-              previewed, sent once, and deleted while still in draft.
-            </p>
-          </div>
-        </header>
+        <PageHeader
+          title="Broadcasts"
+          description="Send bulk WhatsApp messages to customer segments"
+        />
         <PageError err={load.err} />
       </div>
     );
@@ -109,19 +105,17 @@ export default async function BroadcastsPage({
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Broadcasts</h1>
-          <p className="text-muted-foreground mt-1 max-w-2xl">
-            Send WhatsApp campaigns to customer segments. Drafts can be
-            previewed, sent once, and deleted while still in draft.
-          </p>
-        </div>
-        <BroadcastForm
-          key={autoOpenCreate ? "create-open" : "create-closed"}
-          autoOpenCreate={autoOpenCreate}
-        />
-      </header>
+      <PageHeader
+        title="Broadcasts"
+        badge={total}
+        description="Send bulk WhatsApp messages to customer segments"
+        actions={
+          <BroadcastForm
+            key={autoOpenCreate ? "create-open" : "create-closed"}
+            autoOpenCreate={autoOpenCreate}
+          />
+        }
+      />
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">

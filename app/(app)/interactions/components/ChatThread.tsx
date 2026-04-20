@@ -16,9 +16,9 @@ function channelIcon(channel: string) {
 
 function channelPillClass(channel: string) {
   const c = channel.toLowerCase();
-  if (c === "whatsapp") return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200";
-  if (c === "sms") return "bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200";
-  return "bg-muted text-muted-foreground";
+  if (c === "whatsapp") return "bg-green-50 text-green-700";
+  if (c === "sms") return "bg-blue-50 text-blue-700";
+  return "bg-slate-100 text-slate-500";
 }
 
 function dayLabel(d: Date) {
@@ -66,7 +66,7 @@ export function ChatThread({ interactions }: { interactions: Interaction[] }) {
               key={row.key}
               className="flex justify-center py-2 text-[11px] font-medium text-muted-foreground"
             >
-              <span className="rounded-full bg-muted/80 px-3 py-0.5">
+              <span className="rounded-full bg-slate-100 px-3 py-[3px] text-[11px] text-slate-500">
                 {row.label}
               </span>
             </div>
@@ -92,8 +92,8 @@ export function ChatThread({ interactions }: { interactions: Interaction[] }) {
                 className={cn(
                   "px-3 py-2 text-sm leading-[1.5] shadow-sm",
                   incoming
-                    ? "rounded-[0_12px_12px_12px] bg-[#f3f4f6] text-[#111827] dark:bg-muted dark:text-foreground"
-                    : "rounded-[12px_0_12px_12px] bg-[#4f46e5] text-white",
+                    ? "rounded-[4px_16px_16px_16px] border border-slate-200 bg-white text-slate-800"
+                    : "rounded-[16px_4px_16px_16px] bg-[#4f46e5] text-white",
                 )}
               >
                 {item.message}
@@ -104,7 +104,7 @@ export function ChatThread({ interactions }: { interactions: Interaction[] }) {
                   incoming ? "justify-start" : "justify-end",
                 )}
               >
-                <span className="text-[11px] text-muted-foreground">{ts}</span>
+                <span className="text-[10px] text-slate-400">{ts}</span>
                 <span
                   className={cn(
                     "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium capitalize",

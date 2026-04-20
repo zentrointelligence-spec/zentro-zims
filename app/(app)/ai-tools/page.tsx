@@ -10,7 +10,7 @@ export default function AiToolsPage() {
     <div className="space-y-6">
       <PageHeader
         title="AI Tools"
-        description="Generate content for WhatsApp, renewals, and marketing"
+        description="Generate premium messaging for campaigns and follow-ups"
       />
       <AiToolsClient />
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState, useTransition } from "react";
+import { Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { InlineSpinner } from "@/components/zims/loading-spinner";
@@ -115,12 +116,13 @@ export function Step2ImportData({
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         className={cn(
-          "flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/40 bg-muted/20 px-4 py-8 text-center transition-all duration-150 ease-in-out",
+          "flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-brand-300 bg-muted/20 px-4 py-8 text-center transition-all duration-150 ease-in-out",
           dragOver &&
-            "border-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/30",
-          "hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20",
+            "border-brand-500 bg-brand-50/30 dark:bg-indigo-950/30",
+          "hover:border-brand-400 hover:bg-brand-50/30 dark:hover:bg-indigo-950/20",
         )}
       >
+        <Upload className="mb-2 h-8 w-8 text-brand-400" />
         <span className="text-sm font-medium text-foreground">
           Drop your Excel file here
         </span>

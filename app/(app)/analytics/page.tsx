@@ -58,7 +58,7 @@ export default async function AnalyticsPage() {
       <div className="space-y-6">
         <PageHeader
           title="Analytics"
-          description="KPIs, pipeline mix, and six-month activity from your agency data."
+          description="Understand your agency's performance at a glance"
         />
         <AnalyticsFetchError err={load.err} />
       </div>
@@ -69,7 +69,7 @@ export default async function AnalyticsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Analytics"
-        description="KPIs, pipeline mix, and six-month activity from your agency data."
+        description="Understand your agency's performance at a glance"
         actions={<ExportButton summary={load.summary} />}
       />
       <AnalyticsClient summary={load.summary} monthly={load.monthly} />

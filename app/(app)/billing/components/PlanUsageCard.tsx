@@ -33,7 +33,7 @@ export function PlanUsageCard({
   usage: PlanUsage;
 }) {
   return (
-    <section className="rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-6 text-card-foreground shadow-card">
       <h2 className="text-lg font-semibold tracking-tight">Plan usage</h2>
       <div className="mt-4 space-y-5">
         {ROWS.map((row) => {
@@ -58,12 +58,9 @@ export function PlanUsageCard({
                   {cur} / {unlimited ? "Unlimited" : max}
                 </span>
               </div>
-              <div
-                className="mt-2 h-1.5 w-full overflow-hidden rounded-[3px] bg-gray-100 dark:bg-muted"
-                style={{ height: "6px", borderRadius: "3px" }}
-              >
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-muted">
                 <div
-                  className={`h-full rounded-[3px] transition-all ${barColor(pct, unlimited)}`}
+                  className={`h-full rounded-full transition-all ${barColor(pct, unlimited)}`}
                   style={{
                     width: unlimited ? "0%" : `${pct}%`,
                   }}

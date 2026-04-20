@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { BellRing } from "lucide-react";
 
 import { updateNotificationTemplatesAction } from "../actions";
 import { Button } from "@/components/ui/button";
@@ -90,13 +91,20 @@ export function NotificationTemplatesForm({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
-      <h2 className="text-[15px] font-semibold tracking-tight">
-        Notification templates
-      </h2>
-      <p className="text-[13px] text-muted-foreground mb-5 mt-1">
-        Customise automated messages sent to customers
-      </p>
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-card">
+      <div className="mb-5 flex items-start gap-3">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50 text-green-600">
+          <BellRing className="h-4 w-4" />
+        </span>
+        <div>
+          <h2 className="text-[15px] font-semibold tracking-tight text-slate-900">
+            Notification templates
+          </h2>
+          <p className="mt-1 text-[13px] text-slate-500">
+            Customise automated messages sent to customers
+          </p>
+        </div>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -158,7 +166,7 @@ export function NotificationTemplatesForm({
               type="submit"
               disabled={pending}
               className={cn(
-                "h-9 min-w-[200px] bg-indigo-600 text-white hover:bg-indigo-700",
+                "h-8 min-w-[200px] bg-gradient-to-br from-brand-500 to-brand-600 text-white hover:brightness-110",
               )}
             >
               {pending ? (

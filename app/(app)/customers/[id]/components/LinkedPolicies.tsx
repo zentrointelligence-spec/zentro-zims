@@ -78,13 +78,18 @@ export function LinkedPolicies({
     <Card className="rounded-lg border bg-card p-6 shadow-sm">
       <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0 p-0 pb-4">
         <div>
-          <CardTitle className="text-base font-medium">Policies</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-base font-medium">Policies</CardTitle>
+            <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-semibold text-brand-700">
+              {policies.length}
+            </span>
+          </div>
           <CardDescription className="sr-only">
             Policies linked to this customer
           </CardDescription>
         </div>
         <Button nativeButton={false} render={<Link href={`/policies?customer_id=${customerId}`} />} size="sm">
-          Issue new policy
+          Issue policy →
         </Button>
       </CardHeader>
       <CardContent className="p-0">
@@ -115,7 +120,16 @@ export function LinkedPolicies({
               columnHeaderClassName={["", "hidden md:table-cell", "", "", ""]}
             >
               {policies.map((p) => (
-                <TableRow key={p.id} className="border-b border-border/50 last:border-0">
+                <TableRow
+                  key={p.id}
+                  className={cn(
+                    "border-b border-border/50 last:border-0",
+                    p.status === "active" && "border-l-2 border-l-green-300",
+                    p.status === "renewal_due" && "border-l-2 border-l-amber-300",
+                    p.status === "expired" && "border-l-2 border-l-red-300",
+                    p.status === "cancelled" && "border-l-2 border-l-slate-300",
+                  )}
+                >
                   <TableCell className="px-0 py-2.5 font-medium">
                     {p.policy_number}
                   </TableCell>
@@ -125,7 +139,16 @@ export function LinkedPolicies({
                   <TableCell className="px-0 py-2.5">
                     <StatusChip status={p.status} kind="policy" />
                   </TableCell>
-                  <TableCell className="px-0 py-2.5 text-muted-foreground tabular-nums">
+                  <TableCell
+                    className={cn(
+                      "px-0 py-2.5 tabular-nums",
+                      daysUntil(p.expiry_date) < 0
+                        ? "text-red-600"
+                        : daysUntil(p.expiry_date) <= 30
+                          ? "text-amber-600"
+                          : "text-green-600",
+                    )}
+                  >
                     {formatDate(p.expiry_date)}
                   </TableCell>
                   <TableCell className="px-0 py-2.5">

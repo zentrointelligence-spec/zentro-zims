@@ -61,20 +61,36 @@ export default async function TasksPage({
   }
 
   const { items, total, pages } = parsedList.data;
+  const overdueCount = items.filter((t) => {
+    if (t.status !== "pending" && t.status !== "in_progress") return false;
+    const due = new Date(t.due_date);
+    if (Number.isNaN(due.getTime())) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    due.setHours(0, 0, 0, 0);
+    return due.getTime() < today.getTime();
+  }).length;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Tasks"
-        description="Follow-ups, renewal call-lists and everything your agents need to do today."
+        description="Stay on top of follow-ups and renewals"
         actions={
-          <Link
-            href="/tasks?create=1"
-            className={buttonVariants({ variant: "default" })}
-          >
-            <Plus className="mr-1.5 h-4 w-4" />
-            New task
-          </Link>
+          <>
+            {overdueCount > 0 ? (
+              <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                {overdueCount} overdue
+              </span>
+            ) : null}
+            <Link
+              href="/tasks?create=1"
+              className={buttonVariants({ variant: "default" })}
+            >
+              <Plus className="mr-1.5 h-4 w-4" />
+              New task
+            </Link>
+          </>
         }
       />
 

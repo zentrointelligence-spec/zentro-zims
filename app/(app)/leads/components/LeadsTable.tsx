@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/table";
 import { StatusChip } from "@/components/zims/status-chip";
 import type { Lead, LeadStatus } from "@/lib/schemas";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 
 const QUERY_KEY = ["leads"] as const;
 
@@ -42,6 +42,24 @@ const STATUS_CHOICES: LeadStatus[] = [
   "converted",
   "lost",
 ];
+
+const STATUS_META: Record<
+  LeadStatus,
+  { label: string; text: string; divider: boolean }
+> = {
+  new: { label: "New", text: "text-brand-600", divider: true },
+  contacted: { label: "Contacted", text: "text-blue-600", divider: true },
+  qualified: { label: "Qualified", text: "text-amber-600", divider: true },
+  converted: { label: "Converted", text: "text-green-600", divider: true },
+  lost: { label: "Lost", text: "text-slate-500", divider: false },
+};
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "??";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
+}
 
 function LeadStatusSelect({
   lead,
@@ -134,10 +152,34 @@ export function LeadsTable({
 
   const start_ = (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
+  const counts = leads.reduce<Record<LeadStatus, number>>(
+    (acc, lead) => {
+      acc[lead.status] += 1;
+      return acc;
+    },
+    { new: 0, contacted: 0, qualified: 0, converted: 0, lost: 0 },
+  );
 
   return (
     <PageFade>
       <div className="space-y-4">
+        <div className="card flex flex-wrap items-center rounded-[10px] border border-slate-200 bg-white px-5 py-3">
+          {STATUS_CHOICES.map((status) => (
+            <div key={status} className="flex items-center">
+              <span
+                className={cn(
+                  "text-[11px] font-semibold",
+                  STATUS_META[status].text,
+                )}
+              >
+                {counts[status]} {STATUS_META[status].label}
+              </span>
+              {STATUS_META[status].divider ? (
+                <span className="mx-3 h-4 w-px bg-slate-200" aria-hidden />
+              ) : null}
+            </div>
+          ))}
+        </div>
         <div className="overflow-x-auto rounded-md border">
           <Table>
             <TableHeader>
@@ -175,7 +217,14 @@ export function LeadsTable({
               ) : (
               leads.map((lead) => (
                 <TableRow key={lead.id}>
-                  <TableCell className="font-medium">{lead.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-[11px] font-bold text-brand-600">
+                        {initials(lead.name)}
+                      </span>
+                      <span>{lead.name}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="hidden whitespace-nowrap text-sm md:table-cell">
                     {lead.phone}
                   </TableCell>
@@ -183,7 +232,14 @@ export function LeadsTable({
                     {lead.email ?? "—"}
                   </TableCell>
                   <TableCell className="hidden capitalize md:table-cell">
-                    {lead.insurance_type}
+                    <div className="flex items-center gap-2">
+                      <span>{lead.insurance_type}</span>
+                      {lead.source ? (
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                          {lead.source}
+                        </span>
+                      ) : null}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <LeadStatusSelect

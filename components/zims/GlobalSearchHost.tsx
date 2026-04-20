@@ -26,20 +26,20 @@ export function GlobalSearchHost() {
 
   return (
     <>
-      {/* Fixed trigger aligned with app-shell header (sidebar = md:w-64). */}
-      <div className="pointer-events-none fixed left-0 top-0 z-40 h-16 w-full md:left-64 md:w-[calc(100%-16rem)]">
-        <div className="flex h-full items-center justify-end pr-14 sm:pr-16 md:justify-start md:px-6 md:pr-6">
+      {/* Fixed trigger centered in app-shell header. */}
+      <div className="pointer-events-none fixed left-0 top-0 z-40 h-14 w-full md:left-60 md:w-[calc(100%-15rem)]">
+        <div className="flex h-full items-center justify-center px-3">
           <button
             type="button"
             onClick={() => setOpen(true)}
             className={cn(
-              "pointer-events-auto flex items-center gap-2 rounded-full border border-sidebar-border/80 bg-muted/40 px-2.5 py-1.5 text-sm text-muted-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-muted/60 hover:text-foreground md:px-3",
+              "pointer-events-auto flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 text-sm text-slate-400 shadow-sm transition-colors hover:bg-slate-200 hover:text-slate-600",
             )}
             aria-label="Open search"
           >
             <Search className="h-4 w-4 shrink-0" aria-hidden />
-            <span className="hidden md:inline">Search…</span>
-            <kbd className="hidden rounded border border-border bg-background/80 px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground md:inline">
+            <span className="hidden sm:inline">Search...</span>
+            <kbd className="hidden rounded border border-slate-300 bg-white px-1.5 py-0.5 font-mono text-[10px] font-medium text-slate-500 sm:inline">
               {kbdHint}
             </kbd>
           </button>

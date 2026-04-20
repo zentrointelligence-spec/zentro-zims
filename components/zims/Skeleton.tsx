@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 const pulse =
-  "animate-pulse rounded-md bg-gray-200 dark:bg-gray-700";
+  "animate-pulse rounded-lg bg-[#f1f5f9] dark:bg-slate-800";
 
 export function SkeletonRow({ className }: { className?: string }) {
   return (
@@ -37,7 +37,7 @@ export function SkeletonCard({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-border bg-card p-5 shadow-sm",
+        "rounded-[14px] border border-slate-200 bg-white p-5 shadow-card",
         className,
       )}
     >
@@ -51,7 +51,7 @@ export function SkeletonKpi({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-md bg-secondary p-4 shadow-none",
+        "rounded-[14px] bg-[#f1f5f9] p-4 shadow-none",
         className,
       )}
     >

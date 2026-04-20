@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All statuses" },
@@ -19,6 +20,14 @@ const STATUS_OPTIONS = [
   { value: "expired", label: "Expired" },
   { value: "cancelled", label: "Cancelled" },
 ];
+
+const DOT: Record<string, string> = {
+  all: "bg-slate-300",
+  active: "bg-green-500",
+  renewal_due: "bg-amber-500",
+  expired: "bg-red-500",
+  cancelled: "bg-slate-400",
+};
 
 export function PolicyFilters({
   currentStatus,
@@ -54,22 +63,28 @@ export function PolicyFilters({
     <div className="flex flex-wrap items-center gap-3">
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Status</span>
-        <Select
-          value={currentStatus || "all"}
-          onValueChange={setStatus}
-          disabled={pending}
-        >
-          <SelectTrigger size="sm" className="w-[170px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-[10px] border border-slate-200 bg-slate-50 p-1">
+          {STATUS_OPTIONS.map((o) => {
+            const active = (currentStatus || "all") === o.value;
+            return (
+              <button
+                key={o.value}
+                type="button"
+                disabled={pending}
+                onClick={() => setStatus(o.value)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-[8px] px-[14px] py-[6px] text-[13px] font-medium transition-colors",
+                  active
+                    ? "border border-brand-200 bg-white text-brand-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700",
+                )}
+              >
+                <span className={cn("h-1.5 w-1.5 rounded-full", DOT[o.value])} />
                 {o.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

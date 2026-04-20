@@ -66,6 +66,11 @@ export default async function QuotesPage({
   }
 
   const { items, total, pages } = parsedList.data;
+  const pipelineValue = items.reduce((sum, q) => {
+    if (q.status === "rejected") return sum;
+    const n = Number(q.premium_quoted);
+    return Number.isFinite(n) ? sum + n : sum;
+  }, 0);
 
   const leadRows =
     leadsRes.status === "fulfilled" ? leadsRes.value.items : [];
@@ -97,7 +102,8 @@ export default async function QuotesPage({
     <div className="space-y-6">
       <PageHeader
         title="Quotes"
-        description="Track draft offers through acceptance. Accepting a quote creates a policy automatically."
+        badge={total}
+        description="Manage your sales quotes and proposals"
         actions={
           <Link
             href="/quotes?create=1"
@@ -108,6 +114,13 @@ export default async function QuotesPage({
           </Link>
         }
       />
+
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
+        <p className="text-xs font-medium text-slate-500">Pipeline value</p>
+        <p className="mt-1 text-2xl font-extrabold text-slate-900">
+          RM {pipelineValue.toLocaleString("en-MY", { maximumFractionDigits: 2 })}
+        </p>
+      </div>
 
       <QuoteFilters currentStatus={status ?? "all"} />
 

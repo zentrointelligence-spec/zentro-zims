@@ -1,32 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { CheckSquare } from "lucide-react";
+import {
+  CheckSquare,
+  MessageCircle,
+  MoreHorizontal,
+  Phone,
+  RefreshCw,
+} from "lucide-react";
 
-import { DataTable } from "@/components/zims/data-table";
-import { PageFade } from "@/components/zims/PageFade";
 import { EmptyState } from "@/components/zims/empty-state";
 import { StatusChip } from "@/components/zims/status-chip";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { TableCell, TableRow } from "@/components/ui/table";
 import type { Task } from "@/lib/schemas";
 import { cn, formatDate } from "@/lib/utils";
-
-function formatTaskType(type: Task["type"]): string {
-  const map: Record<Task["type"], string> = {
-    followup: "Follow-up",
-    renewal: "Renewal",
-    call: "Call",
-    other: "Other",
-  };
-  return map[type] ?? type;
-}
 
 function isOverdue(task: Task): boolean {
   const due = new Date(task.due_date).getTime();
@@ -39,78 +25,94 @@ function isOverdue(task: Task): boolean {
   return task.status === "pending" || task.status === "in_progress";
 }
 
-function OverdueChip() {
+function TypeIcon({ type }: { type: Task["type"] }) {
+  const map = {
+    followup: {
+      Icon: MessageCircle,
+      wrap: "bg-indigo-100 text-indigo-600",
+    },
+    renewal: {
+      Icon: RefreshCw,
+      wrap: "bg-amber-100 text-amber-600",
+    },
+    call: {
+      Icon: Phone,
+      wrap: "bg-blue-100 text-blue-600",
+    },
+    other: {
+      Icon: MoreHorizontal,
+      wrap: "bg-slate-100 text-slate-600",
+    },
+  } as const;
+  const { Icon, wrap } = map[type];
   return (
-    <span
+    <div
       className={cn(
-        "inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-xs font-medium text-rose-800",
-        "dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200",
+        "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
+        wrap,
       )}
     >
-      Overdue
-    </span>
+      <Icon className="h-[14px] w-[14px]" aria-hidden />
+    </div>
   );
 }
 
 export function RecentTasks({ tasks }: { tasks: Task[] }) {
   return (
-    <PageFade>
-    <Card className="rounded-lg border bg-card p-5 shadow-sm">
-      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0 p-0 pb-3">
-        <div>
-          <CardTitle className="text-sm font-medium">Open tasks</CardTitle>
-          <CardDescription className="sr-only">
-            Pending work items for your agency
-          </CardDescription>
+    <div className="rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-card">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-slate-900">Open tasks</h2>
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+            {tasks.length}
+          </span>
         </div>
         <Link
           href="/tasks"
-          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="text-xs font-medium text-brand-500 transition-colors hover:text-brand-600"
         >
-          View all tasks
+          View all →
         </Link>
-      </CardHeader>
-      <CardContent className="p-0 pt-1">
-        {tasks.length === 0 ? (
-          <EmptyState
-            title="No open tasks"
-            description="Pending tasks will show up here."
-            icon={CheckSquare}
-          />
-        ) : (
-          <DataTable
-            columns={["Title", "Type", "Due Date", "Status"]}
-            columnHeaderClassName={["", "hidden md:table-cell", "", ""]}
-          >
-            {tasks.map((task) => {
-              const overdue = isOverdue(task);
-              return (
-                <TableRow
-                  key={task.id}
-                  className="border-b border-border/50 last:border-b-0 hover:bg-muted/40"
+      </div>
+
+      {tasks.length === 0 ? (
+        <EmptyState
+          title="No open tasks"
+          description="Pending tasks will show up here."
+          icon={CheckSquare}
+          className="min-h-[200px] py-8"
+        />
+      ) : (
+        <ul className="divide-y divide-slate-100">
+          {tasks.map((task) => {
+            const overdue = isOverdue(task);
+            return (
+              <li key={task.id}>
+                <div
+                  className="flex items-center gap-3 py-2"
+                  style={{ minHeight: 48 }}
                 >
-                  <TableCell className="max-w-[200px] truncate px-0 py-2.5 font-medium text-foreground">
-                    {task.title}
-                  </TableCell>
-                  <TableCell className="hidden px-0 py-2.5 text-muted-foreground md:table-cell">
-                    {formatTaskType(task.type)}
-                  </TableCell>
-                  <TableCell className="px-0 py-2.5 text-muted-foreground tabular-nums">
-                    {formatDate(task.due_date)}
-                  </TableCell>
-                  <TableCell className="px-0 py-2.5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {overdue ? <OverdueChip /> : null}
-                      <StatusChip status={task.status} kind="task" />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </DataTable>
-        )}
-      </CardContent>
-    </Card>
-    </PageFade>
+                  <TypeIcon type={task.type} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-medium text-slate-900">{task.title}</p>
+                    <p className="mt-0.5 text-[11px] text-slate-400">
+                      {formatDate(task.due_date)}
+                      {overdue ? (
+                        <span className="ml-1.5 text-[10px] font-semibold text-red-500">
+                          Overdue
+                        </span>
+                      ) : null}
+                    </p>
+                  </div>
+                  <div className="shrink-0">
+                    <StatusChip status={task.status} kind="task" />
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }

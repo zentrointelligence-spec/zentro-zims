@@ -24,7 +24,7 @@ import { PageFade } from "@/components/zims/PageFade";
 import { StatusChip } from "@/components/zims/status-chip";
 import type { Quote, QuotePartyOption } from "@/lib/schemas";
 import { daysUntil, formatDate } from "@/lib/utils";
-import { FileText } from "lucide-react";
+import { FileText, TriangleAlert } from "lucide-react";
 
 function formatPremiumDisplay(raw: string): string {
   const n = Number(raw);
@@ -38,23 +38,25 @@ function formatPremiumDisplay(raw: string): string {
 
 function validUntilCell(validUntil: string) {
   const due = daysUntil(validUntil);
-  const expired = due < 0;
-  const expiringSoon = !expired && due <= 7;
-
-  return (
-    <div className="flex flex-wrap items-center gap-2 whitespace-nowrap text-sm">
-      <span>{formatDate(validUntil)}</span>
-      {expired ? (
-        <span className="inline-flex rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
-          Expired
-        </span>
-      ) : expiringSoon ? (
-        <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-          Expiring soon
-        </span>
-      ) : null}
-    </div>
-  );
+  if (due < 0) {
+    return (
+      <span className="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+        Expired
+      </span>
+    );
+  }
+  if (due <= 7) {
+    return (
+      <span className="inline-flex items-center gap-1 text-sm font-semibold text-red-600">
+        <TriangleAlert className="h-3.5 w-3.5" />
+        {due} days
+      </span>
+    );
+  }
+  if (due <= 30) {
+    return <span className="text-sm font-medium text-amber-600">{due} days</span>;
+  }
+  return <span className="text-sm text-slate-600">{formatDate(validUntil)}</span>;
 }
 
 function leadOrCustomerName(

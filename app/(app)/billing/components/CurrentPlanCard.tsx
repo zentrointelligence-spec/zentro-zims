@@ -87,7 +87,7 @@ export function CurrentPlanCard({
   }
 
   return (
-    <section className="rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm">
+    <section className="rounded-xl border border-slate-200 border-l-4 border-l-brand-500 bg-white p-6 text-card-foreground shadow-card">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <span className={planBadgeClass(status.plan)}>{planLabel(status.plan)}</span>
@@ -100,6 +100,7 @@ export function CurrentPlanCard({
             type="button"
             variant="outline"
             size="sm"
+            className="border-slate-300 bg-white"
             disabled={pending}
             onClick={() => startTransition(() => void runPortal())}
           >

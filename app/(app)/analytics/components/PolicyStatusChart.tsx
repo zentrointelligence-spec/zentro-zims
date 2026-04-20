@@ -49,8 +49,9 @@ export function PolicyStatusChart({
   const empty = total === 0;
 
   return (
-    <div className="rounded-lg border border-border bg-background p-5">
-      <h2 className="text-sm font-medium text-foreground">Policies by status</h2>
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
+      <h2 className="text-sm font-semibold text-slate-900">Policies by status</h2>
+      <p className="mt-1 text-xs text-slate-400">Coverage health by lifecycle stage</p>
       <div className="relative mt-3 min-h-[280px] w-full">
         {empty ? (
           <div className="flex h-[280px] items-center justify-center text-sm text-muted-foreground">
