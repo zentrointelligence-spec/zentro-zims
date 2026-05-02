@@ -1,0 +1,12 @@
+{
+  "name": "zentro-zims",
+  "private": true,
+  "description": "Repo root helpers. Backend: uvicorn in app/. Frontend: web/",
+  "scripts": {
+    "dev": "npm run dev:web",
+    "dev:web": "npm --prefix web run dev",
+    "dev:web:webpack": "npm --prefix web run dev:webpack",
+    "build:web": "npm --prefix web run build",
+    "lint:web": "npm --prefix web run lint"
+  }
+}
