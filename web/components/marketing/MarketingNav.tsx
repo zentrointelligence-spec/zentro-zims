@@ -47,6 +47,12 @@ export function MarketingNav() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/login"
+            className="hidden text-sm font-medium text-slate-400 transition-colors hover:text-white sm:block"
+          >
+            Sign in
+          </Link>
           <Button
             size="sm"
             className="h-9 bg-indigo-600 px-4 text-white hover:bg-indigo-700"
@@ -62,19 +68,21 @@ export function MarketingNav() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-9 w-9 border-white/10 md:hidden"
+                  className="h-9 w-9 border-white/10 text-slate-300 hover:border-white/20 hover:bg-white/5 md:hidden"
                   aria-label="Open menu"
                 />
               }
             >
-              <Menu className="h-5 w-5 text-slate-300" />
+              <Menu className="h-5 w-5" />
             </SheetTrigger>
             <SheetContent
               side="right"
               className="w-full max-w-full border-white/10 bg-slate-900 p-0 sm:max-w-sm"
             >
               <SheetHeader className="border-b border-white/5 px-4 py-4 sm:px-6">
-                <SheetTitle className="text-left text-white">Menu</SheetTitle>
+                <SheetTitle className="text-left">
+                  <ZentroLogo variant="light" />
+                </SheetTitle>
               </SheetHeader>
               <nav
                 className="flex flex-col gap-1 px-2 py-4 sm:px-4"
@@ -85,14 +93,18 @@ export function MarketingNav() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className={cn(
-                      "rounded-lg px-3 py-3 text-base font-medium text-gray-700",
-                      "hover:bg-indigo-50 hover:text-indigo-900",
-                    )}
+                    className="rounded-lg px-3 py-3 text-base font-medium text-slate-200 transition-colors hover:bg-white/5 hover:text-white"
                   >
                     {item.label}
                   </Link>
                 ))}
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-3 text-base font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200"
+                >
+                  Sign in
+                </Link>
                 <Link
                   href="/register"
                   onClick={() => setOpen(false)}

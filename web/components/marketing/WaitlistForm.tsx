@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, CheckCircle2, Loader2, Zap } from "lucide-react"
 import { trackWaitlist } from "@/lib/analytics"
@@ -10,6 +10,13 @@ export function WaitlistForm({ variant = "hero" }: { variant?: "hero" | "footer"
   const [name, setName] = useState("")
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
+  const [stickyVisible, setStickyVisible] = useState(false)
+
+  useEffect(() => {
+    if (variant !== "sticky") return
+    const t = setTimeout(() => setStickyVisible(true), 3000)
+    return () => clearTimeout(t)
+  }, [variant])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,66 +55,72 @@ export function WaitlistForm({ variant = "hero" }: { variant?: "hero" | "footer"
 
   if (variant === "sticky") {
     return (
-      <motion.div
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-slate-900/95 backdrop-blur-lg"
-      >
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-3 sm:flex-row sm:justify-between">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-brand-400" />
-            <span className="text-sm text-white">
-              Join <strong>500+ agencies</strong> on the waitlist
-            </span>
-          </div>
-          <form onSubmit={handleSubmit} className="flex w-full gap-2 sm:w-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none sm:w-64"
-            />
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
-            >
-              {status === "loading" ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <>
-                  Join <ArrowRight className="h-3.5 w-3.5" />
-                </>
+      <AnimatePresence>
+        {stickyVisible && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-slate-900/95 backdrop-blur-lg"
+          >
+            <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-3 sm:flex-row sm:justify-between">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-brand-400" />
+                <span className="text-sm text-white">
+                  Join <strong>500+ agencies</strong> on the waitlist
+                </span>
+              </div>
+              <form onSubmit={handleSubmit} className="flex w-full gap-2 sm:w-auto">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none sm:w-64"
+                />
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
+                >
+                  {status === "loading" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      Join <ArrowRight className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+            <AnimatePresence>
+              {status === "success" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="border-t border-white/5 bg-emerald-500/10 px-4 py-2 text-center text-xs text-emerald-400"
+                >
+                  <CheckCircle2 className="mr-1 inline h-3 w-3" />
+                  {message}
+                </motion.div>
               )}
-            </button>
-          </form>
-        </div>
-        <AnimatePresence>
-          {status === "success" && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="border-t border-white/5 bg-emerald-500/10 px-4 py-2 text-center text-xs text-emerald-400"
-            >
-              <CheckCircle2 className="mr-1 inline h-3 w-3" />
-              {message}
-            </motion.div>
-          )}
-          {status === "error" && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="border-t border-white/5 bg-red-500/10 px-4 py-2 text-center text-xs text-red-400"
-            >
-              {message}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+              {status === "error" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="border-t border-white/5 bg-red-500/10 px-4 py-2 text-center text-xs text-red-400"
+                >
+                  {message}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
     )
   }
 

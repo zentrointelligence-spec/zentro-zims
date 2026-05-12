@@ -58,9 +58,9 @@ export function AppShell({
             </div>
             <div className="min-w-0">
               <p className="truncate text-[13px] font-semibold text-white">
-                Agency {user.agency_id}
+                {user.name}
               </p>
-              <p className="text-[11px] text-slate-400">Agency</p>
+              <p className="truncate text-[11px] text-slate-400">{user.email}</p>
             </div>
           </div>
         </div>
