@@ -50,14 +50,14 @@ export function FeaturesSection() {
   return (
     <section
       id="features"
-      className="border-b border-gray-200 bg-white px-4 py-16 sm:px-6 md:py-24"
+      className="border-b border-white/5 bg-transparent px-4 py-16 sm:px-6 md:py-24"
     >
       <div className="mx-auto max-w-[1200px]">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-[28px] font-bold tracking-[-0.02em] text-gray-900 md:text-4xl">
+          <h2 className="text-[28px] font-bold tracking-[-0.02em] text-white md:text-4xl">
             Everything your agency needs
           </h2>
-          <p className="mt-4 text-base leading-[1.7] text-gray-500">
+          <p className="mt-4 text-base leading-[1.7] text-slate-400">
             Built specifically for how insurance agencies actually work
           </p>
         </div>
@@ -65,12 +65,12 @@ export function FeaturesSection() {
           {FEATURES.map((f) => (
             <article
               key={f.title}
-              className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
+              className="rounded-xl border border-white/10 bg-slate-900/30 p-6 shadow-sm transition-shadow duration-200 hover:shadow-md hover:border-white/20 backdrop-blur-sm"
             >
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
                 <f.icon className="h-6 w-6" aria-hidden />
               </div>
-              <h3 className="text-lg font-bold tracking-[-0.02em] text-gray-900">
+              <h3 className="text-lg font-bold tracking-[-0.02em] text-white">
                 {f.title}
               </h3>
               <p className="mt-2 text-base leading-[1.7] text-gray-500">{f.description}</p>

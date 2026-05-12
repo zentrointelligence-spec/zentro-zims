@@ -1,0 +1,173 @@
+# =============================================================================
+# Zentro-ZIMS — GitHub Actions CI/CD Pipeline
+# =============================================================================
+# Triggers:
+#   - Push to main / develop
+#   - Pull requests targeting main
+#
+# Jobs:
+#   1. lint-format  — Ruff linter + formatter check
+#   2. test         — pytest with SQLite (fast feedback)
+#   3. integration  — pytest with PostgreSQL + Redis (Docker services)
+#
+# TODO (Phase 4):
+#   - Add Docker image build + push to ECR
+#   - Add security scanning (Bandit, Snyk, Trivy)
+#   - Add frontend build + Cypress E2E tests
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint & Format Check
+  # ---------------------------------------------------------------------------
+  lint-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ruff
+        run: pip install ruff==0.6.9
+
+      - name: Lint
+        run: ruff check app
+
+      - name: Format check
+        run: ruff format --check app
+
+  # ---------------------------------------------------------------------------
+  # Unit Tests (SQLite — fast feedback)
+  # ---------------------------------------------------------------------------
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pytest
+        env:
+          APP_ENV: testing
+          DATABASE_URL: sqlite:///./test_zims.db
+          SECRET_KEY: github-actions-test-secret-key-32chars
+          REDIS_URL: redis://localhost:6379/1
+          RUN_ALEMBIC_ON_STARTUP: "false"
+        run: pytest -xvs -m "not integration and not e2e"
+
+  # ---------------------------------------------------------------------------
+  # Integration Tests (PostgreSQL + Redis)
+  # ---------------------------------------------------------------------------
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: zims
+          POSTGRES_PASSWORD: zims
+          POSTGRES_DB: zims_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Alembic migrations
+        env:
+          DATABASE_URL: postgresql+psycopg2://zims:zims@localhost:5432/zims_test
+          SECRET_KEY: github-actions-test-secret-key-32chars
+        run: alembic upgrade head
+
+      - name: Run integration tests
+        env:
+          APP_ENV: testing
+          DATABASE_URL: postgresql+psycopg2://zims:zims@localhost:5432/zims_test
+          SECRET_KEY: github-actions-test-secret-key-32chars
+          REDIS_URL: redis://localhost:6379/1
+          RUN_ALEMBIC_ON_STARTUP: "false"
+        run: pytest -xvs -m integration
+
+  # ---------------------------------------------------------------------------
+  # Docker Build Check
+  # ---------------------------------------------------------------------------
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: zims-api:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

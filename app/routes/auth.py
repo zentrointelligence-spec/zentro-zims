@@ -1,19 +1,38 @@
-"""Auth routes: register agency+admin and login."""
+"""Auth routes: register, login, refresh, logout, me.
+
+All endpoints are public (no JWT required) except ``/me`` and ``/logout``.
+"""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.security import create_access_token, hash_password, verify_password
-from app.models.agency import Agency
-from app.models.user import User, UserRole
-from app.schemas.agency import AgencyOut
-from app.schemas.auth import LoginRequest, RegisterRequest, RegisterResponse, Token
+from app.core.dependencies import get_current_user
+from app.core.logging import get_logger
+from app.models.user import User
+from app.schemas.auth import (
+    AuthMeOut,
+    LoginRequest,
+    LoginResponse,
+    LogoutRequest,
+    RefreshRequest,
+    RegisterRequest,
+    RegisterResponse,
+    TokenPair,
+)
+from app.schemas.agency import AgencyMeOut
 from app.schemas.user import UserOut
-from app.services.audit_service import log_action
+from app.services.auth_service import AuthService
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def _client_ip(request: Request) -> str | None:
+    """Extract client IP respecting proxy headers."""
+    return getattr(request.state, "client_ip", None)
 
 
 @router.post(
@@ -22,76 +41,106 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     status_code=status.HTTP_201_CREATED,
     summary="Register a new agency + its first admin",
 )
-def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> RegisterResponse:
-    if db.query(Agency).filter(Agency.name == payload.agency_name).first():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Agency with that name already exists",
-        )
-    if db.query(User).filter(User.email == payload.admin_email.lower()).first():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User with that email already exists",
-        )
+def register(
+    payload: RegisterRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> RegisterResponse:
+    """Create a new tenant (agency) and its first admin user.
 
-    agency = Agency(
-        name=payload.agency_name,
-        subscription_plan=payload.subscription_plan,
-    )
-    db.add(agency)
-    db.flush()  # populate agency.id
-
-    admin = User(
-        name=payload.admin_name,
-        email=payload.admin_email.lower(),
-        hashed_password=hash_password(payload.admin_password),
-        role=UserRole.ADMIN,
-        is_active=True,
-        agency_id=agency.id,
-    )
-    db.add(admin)
-    db.commit()
-    db.refresh(agency)
-    db.refresh(admin)
-
-    token = create_access_token(
-        subject=admin.id, agency_id=admin.agency_id, role=admin.role.value
-    )
+    Returns both access and refresh tokens so the user is immediately
+    authenticated without a second login request.
+    """
+    svc = AuthService(db)
+    result = svc.register(payload, ip_address=_client_ip(request))
     return RegisterResponse(
-        agency=AgencyOut.model_validate(agency),
-        user=UserOut.model_validate(admin),
-        access_token=token,
+        agency=result["agency"],
+        user=result["user"],
+        access_token=result["access_token"],
+        refresh_token=result["refresh_token"],
     )
 
 
-@router.post("/login", response_model=Token, summary="Log in with email + password")
+@router.post(
+    "/login",
+    response_model=LoginResponse,
+    summary="Log in with email + password",
+)
 def login(
     payload: LoginRequest,
     request: Request,
     db: Session = Depends(get_db),
-) -> Token:
-    user = db.query(User).filter(User.email == payload.email.lower()).first()
-    if not user or not verify_password(payload.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
-        )
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="User is disabled"
-        )
+) -> LoginResponse:
+    """Authenticate and receive a token pair.
 
-    token = create_access_token(
-        subject=user.id, agency_id=user.agency_id, role=user.role.value
+    The refresh token should be stored securely (httpOnly cookie or
+    secure mobile storage) and used only with ``POST /auth/refresh``.
+    """
+    svc = AuthService(db)
+    return svc.login(payload, ip_address=_client_ip(request))
+
+
+@router.post(
+    "/refresh",
+    response_model=TokenPair,
+    summary="Exchange refresh token for a new token pair",
+)
+def refresh(
+    payload: RefreshRequest,
+    db: Session = Depends(get_db),
+) -> TokenPair:
+    """Rotate access token using a valid refresh token.
+
+    Returns a **new** refresh token (token rotation) to mitigate replay attacks.
+    The old refresh token is implicitly invalidated because only the latest
+    token should be stored client-side.
+    """
+    svc = AuthService(db)
+    return svc.refresh(payload.refresh_token)
+
+
+@router.post(
+    "/logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    summary="Log out and invalidate refresh token",
+)
+def logout(
+    payload: LogoutRequest,
+    db: Session = Depends(get_db),
+) -> Response:
+    """Blacklist the refresh token so it can no longer be used.
+
+    Access tokens remain valid until expiry (short-lived by design).
+    Client should delete both tokens from storage.
+    """
+    svc = AuthService(db)
+    svc.logout(payload.refresh_token)
+
+
+@router.get(
+    "/me",
+    response_model=AuthMeOut,
+    summary="Current authenticated user and agency",
+)
+def auth_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> AuthMeOut:
+    """Return the current user profile plus their agency context.
+
+    This is the primary endpoint for the frontend to hydrate user state
+    after page load or token refresh.
+    """
+    from app.repositories.agency import AgencyRepository
+
+    agency = AgencyRepository(db).get(current_user.agency_id)
+    if agency is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agency not found",
+        )
+    return AuthMeOut(
+        user=UserOut.model_validate(current_user),
+        agency=AgencyMeOut.model_validate(agency),
     )
-    client = request.client
-    log_action(
-        db,
-        user,
-        "login",
-        "user",
-        user.id,
-        f"User login: {user.email}",
-        ip_address=client.host if client else None,
-    )
-    return Token(access_token=token, user=UserOut.model_validate(user))

@@ -272,3 +272,8 @@
 .zims-page-fade {
   animation: zims-page-fade-in 200ms ease-out both;
 }
+
+@keyframes shrinkX {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}

@@ -24,12 +24,7 @@ export default function RegisterPage() {
         </p>
       </div>
       <RegisterForm />
-      <div className="my-6 flex items-center gap-3">
-        <span className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs text-slate-400">or</span>
-        <span className="h-px flex-1 bg-slate-200" />
-      </div>
-      <p className="text-center text-[13px] text-slate-500">
+      <p className="mt-6 text-center text-[13px] text-slate-500">
         Already have an account?{" "}
         <Link
           href="/login"

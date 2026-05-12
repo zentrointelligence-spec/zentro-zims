@@ -66,14 +66,14 @@ export function PricingSection({ id = "pricing" }: { id?: string }) {
   return (
     <section
       id={id}
-      className="border-b border-gray-200 bg-white px-4 py-16 sm:px-6 md:py-24"
+      className="border-b border-white/5 bg-transparent px-4 py-16 sm:px-6 md:py-24"
     >
       <div className="mx-auto max-w-[1200px]">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-[28px] font-bold tracking-[-0.02em] text-gray-900 md:text-4xl">
+          <h2 className="text-[28px] font-bold tracking-[-0.02em] text-white md:text-4xl">
             Simple, transparent pricing
           </h2>
-          <p className="mt-4 text-base leading-[1.7] text-gray-500">
+          <p className="mt-4 text-base leading-[1.7] text-slate-400">
             Start free. Upgrade when you&apos;re ready. No hidden fees.
           </p>
         </div>
@@ -82,10 +82,10 @@ export function PricingSection({ id = "pricing" }: { id?: string }) {
             <article
               key={tier.name}
               className={cn(
-                "relative flex flex-col rounded-2xl border bg-white p-8 shadow-sm",
+                "relative flex flex-col rounded-2xl border border-white/10 bg-slate-900/30 p-8 shadow-sm backdrop-blur-sm",
                 tier.featured
                   ? "scale-100 border-2 border-indigo-600 lg:z-10 lg:scale-105"
-                  : "border-gray-200",
+                  : "border-white/10",
               )}
             >
               {tier.featured ? (
@@ -93,14 +93,14 @@ export function PricingSection({ id = "pricing" }: { id?: string }) {
                   Most popular
                 </p>
               ) : null}
-              <h3 className="text-xl font-bold tracking-[-0.02em] text-gray-900">
+              <h3 className="text-xl font-bold tracking-[-0.02em] text-white">
                 {tier.name}
               </h3>
-              <p className="mt-1 text-sm text-gray-500">{tier.tagline}</p>
-              <p className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+              <p className="mt-1 text-sm text-slate-400">{tier.tagline}</p>
+              <p className="mt-6 text-3xl font-bold tracking-tight text-white">
                 {tier.priceLabel}
               </p>
-              <ul className="mt-8 flex-1 space-y-3 text-sm leading-relaxed text-gray-600">
+              <ul className="mt-8 flex-1 space-y-3 text-sm leading-relaxed text-slate-300">
                 {tier.features.map((line) => (
                   <li key={line} className="flex gap-2">
                     <span className="mt-0.5 text-indigo-600" aria-hidden>
@@ -114,7 +114,7 @@ export function PricingSection({ id = "pricing" }: { id?: string }) {
                 {tier.external ? (
                   <Button
                     variant="outline"
-                    className="h-9 w-full border-gray-300 text-gray-900 hover:bg-gray-50"
+                    className="h-9 w-full border-gray-300 text-white hover:bg-gray-50"
                     nativeButton={false}
                     render={<a href={tier.href} />}
                   >

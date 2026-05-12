@@ -36,26 +36,26 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="border-b border-gray-200 bg-gray-50 px-4 py-16 sm:px-6 md:py-24">
+    <section className="border-b border-white/5 bg-transparent px-4 py-16 sm:px-6 md:py-24">
       <div className="mx-auto max-w-[1200px]">
-        <h2 className="text-center text-[28px] font-bold tracking-[-0.02em] text-gray-900 md:text-4xl">
+        <h2 className="text-center text-[28px] font-bold tracking-[-0.02em] text-white md:text-4xl">
           Frequently asked questions
         </h2>
-        <div className="mx-auto mt-10 max-w-3xl divide-y divide-gray-200 border-y border-gray-200 bg-white">
+        <div className="mx-auto mt-10 max-w-3xl divide-y divide-white/5 border-y border-white/5 bg-slate-900/30 backdrop-blur-sm">
           {FAQS.map((item, index) => {
             const open = openIndex === index;
             return (
-              <div key={item.q} className="border-b border-gray-100 last:border-b-0">
+              <div key={item.q} className="border-b border-white/5 last:border-b-0">
                 <button
                   type="button"
                   onClick={() => setOpenIndex(open ? null : index)}
                   className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left sm:px-6 sm:py-5"
                   aria-expanded={open}
                 >
-                  <span className="text-base font-semibold text-gray-900">{item.q}</span>
+                  <span className="text-base font-semibold text-white">{item.q}</span>
                   <ChevronDown
                     className={cn(
-                      "h-5 w-5 shrink-0 text-gray-500 transition-transform duration-200",
+                      "h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200",
                       open && "rotate-180",
                     )}
                     aria-hidden
@@ -68,7 +68,7 @@ export function FaqSection() {
                   )}
                 >
                   <div className="min-h-0 overflow-hidden">
-                    <p className="px-4 pb-4 text-sm leading-relaxed text-gray-600 sm:px-6 sm:pb-5 sm:text-base">
+                    <p className="px-4 pb-4 text-sm leading-relaxed text-slate-300 sm:px-6 sm:pb-5 sm:text-base">
                       {item.a}
                     </p>
                   </div>

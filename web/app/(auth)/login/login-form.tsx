@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -16,7 +17,10 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/auth/PasswordInput";
+import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
 import { LoginPayload } from "@/lib/schemas";
+import { trackEvent } from "@/lib/analytics";
 
 export function LoginForm({ nextPath }: { nextPath: string }) {
   const router = useRouter();
@@ -28,6 +32,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
   });
 
   function onSubmit(values: LoginPayload) {
+    trackEvent("login", { method: "email" });
     start(async () => {
       try {
         const res = await fetch("/api/auth/login", {
@@ -53,79 +58,90 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-5"
-        noValidate
-      >
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
-                Email
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@agency.com"
-                  className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20"
-                  {...field}
-                />
-              </FormControl>
-              {fieldState.error?.message ? (
-                <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                  {fieldState.error.message}
-                </p>
-              ) : null}
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
-                Password
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20"
-                  {...field}
-                />
-              </FormControl>
-              {fieldState.error?.message ? (
-                <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                  {fieldState.error.message}
-                </p>
-              ) : null}
-            </FormItem>
-          )}
-        />
-        <Button
-          type="submit"
-          className="mt-2 h-11 w-full rounded-[10px] border-0 bg-linear-to-br from-brand-500 to-brand-600 text-sm font-semibold text-white shadow-sm hover:brightness-110 hover:scale-[1.01] active:scale-[0.99]"
-          disabled={pending}
+    <div className="space-y-6">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-5"
+          noValidate
         >
-          {pending ? (
-            <span className="inline-flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Signing in…
-            </span>
-          ) : (
-            "Sign in"
-          )}
-        </Button>
-      </form>
-    </Form>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
+                  Email
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@agency.com"
+                    className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20"
+                    {...field}
+                  />
+                </FormControl>
+                {fieldState.error?.message ? (
+                  <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    {fieldState.error.message}
+                  </p>
+                ) : null}
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <div className="flex items-center justify-between">
+                  <FormLabel className="mb-2 block text-[13px] font-medium text-slate-700">
+                    Password
+                  </FormLabel>
+                  <Link
+                    href="/forgot-password"
+                    className="text-[11px] text-brand-600 hover:text-brand-700 hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <FormControl>
+                  <PasswordInput
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    className="h-[42px] rounded-[10px] border-slate-200 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-brand-500 focus-visible:ring-[3px] focus-visible:ring-brand-500/20"
+                    {...field}
+                  />
+                </FormControl>
+                {fieldState.error?.message ? (
+                  <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    {fieldState.error.message}
+                  </p>
+                ) : null}
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            className="mt-2 h-11 w-full rounded-[10px] border-0 bg-linear-to-br from-brand-500 to-brand-600 text-sm font-semibold text-white shadow-sm hover:brightness-110 hover:scale-[1.01] active:scale-[0.99]"
+            disabled={pending}
+          >
+            {pending ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Signing in…
+              </span>
+            ) : (
+              "Sign in"
+            )}
+          </Button>
+        </form>
+      </Form>
+
+      <SocialLoginButtons />
+    </div>
   );
 }

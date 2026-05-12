@@ -1,0 +1,64 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & temp
+*.log
+tmp/
+temp/
+*.db
+*.sqlite
+*.sqlite3
+
+# Tests & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+
+# Frontend (built separately)
+web/
+web/node_modules/
+web/.next/
+web/dist/
+
+# Documentation
+docs/
+*.md
+
+# Local uploads (mounted as volume in production)
+uploads/
+var/uploads/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github/
+
+# Scripts that aren't needed inside the image
+scripts/setup.sh
+scripts/wait-for-postgres.sh

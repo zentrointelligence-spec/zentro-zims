@@ -1,0 +1,15 @@
+# Explicitly include files that .gitignore might exclude
+!lib/
+!lib/**
+!components/
+!components/**
+!app/
+!app/**
+!public/
+!public/**
+
+# But still exclude build artifacts
+.next/
+node_modules/
+out/
+*.log

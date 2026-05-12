@@ -1,12 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next"
 
-import { CtaSection } from "@/components/marketing/CtaSection";
-import { FeaturesSection } from "@/components/marketing/FeaturesSection";
-import { HeroSection } from "@/components/marketing/HeroSection";
-import { HowItWorksSection } from "@/components/marketing/HowItWorksSection";
-import { PricingSection } from "@/components/marketing/PricingSection";
+import { HeroSection } from "@/components/marketing/HeroSection"
+import { StatsBar } from "@/components/marketing/StatsBar"
+import { LogoCloud } from "@/components/marketing/LogoCloud"
+import { FeaturesSection } from "@/components/marketing/FeaturesSection"
+import { UseCasesSection } from "@/components/marketing/UseCasesSection"
+import { HowItWorksSection } from "@/components/marketing/HowItWorksSection"
+import { TestimonialsSection } from "@/components/marketing/TestimonialsSection"
+import { PricingSection } from "@/components/marketing/PricingSection"
+import { FaqSection } from "@/components/marketing/FaqSection"
+import { CtaSection } from "@/components/marketing/CtaSection"
 
-export const dynamic = "force-static";
+export const dynamic = "force-static"
 
 export const metadata: Metadata = {
   title: "Zentro — Insurance agency platform for leads, renewals & WhatsApp",
@@ -19,16 +24,21 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
   },
-};
+}
 
 export default function MarketingHomePage() {
   return (
     <>
       <HeroSection />
+      <StatsBar />
+      <LogoCloud />
       <FeaturesSection />
+      <UseCasesSection />
       <HowItWorksSection />
+      <TestimonialsSection />
       <PricingSection />
+      <FaqSection />
       <CtaSection />
     </>
-  );
+  )
 }

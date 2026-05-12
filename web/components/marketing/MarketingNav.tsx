@@ -25,21 +25,21 @@ export function MarketingNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" className="shrink-0" aria-label="Zentro home">
-          <ZentroLogo variant="dark" />
+          <ZentroLogo variant="light" />
         </Link>
 
         <nav
-          className="hidden items-center gap-8 text-sm font-medium text-gray-500 md:flex"
+          className="hidden items-center gap-8 text-sm font-medium text-slate-400 md:flex"
           aria-label="Primary"
         >
           {LINKS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="transition-colors hover:text-gray-900"
+              className="transition-colors hover:text-white"
             >
               {item.label}
             </Link>
@@ -62,19 +62,19 @@ export function MarketingNav() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-9 w-9 border-gray-200 md:hidden"
+                  className="h-9 w-9 border-white/10 md:hidden"
                   aria-label="Open menu"
                 />
               }
             >
-              <Menu className="h-5 w-5 text-gray-700" />
+              <Menu className="h-5 w-5 text-slate-300" />
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="w-full max-w-full border-gray-200 p-0 sm:max-w-sm"
+              className="w-full max-w-full border-white/10 bg-slate-900 p-0 sm:max-w-sm"
             >
-              <SheetHeader className="border-b border-gray-100 px-4 py-4 sm:px-6">
-                <SheetTitle className="text-left text-gray-900">Menu</SheetTitle>
+              <SheetHeader className="border-b border-white/5 px-4 py-4 sm:px-6">
+                <SheetTitle className="text-left text-white">Menu</SheetTitle>
               </SheetHeader>
               <nav
                 className="flex flex-col gap-1 px-2 py-4 sm:px-4"

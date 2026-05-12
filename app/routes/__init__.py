@@ -10,7 +10,7 @@ from app.routes import (
     auth,
     broadcasts,
     customers,
-    dependents,
+
     documents,
     interactions,
     leads,
@@ -32,7 +32,6 @@ api_router.include_router(ai_content.router)
 api_router.include_router(audit_logs.router)
 api_router.include_router(leads.router)
 api_router.include_router(customers.router)
-api_router.include_router(dependents.router)
 api_router.include_router(documents.router)
 api_router.include_router(quotes.router)
 api_router.include_router(policies.router)

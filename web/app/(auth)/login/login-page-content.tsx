@@ -38,12 +38,7 @@ export function LoginPageContent() {
         </div>
       ) : null}
       <LoginForm nextPath={next} />
-      <div className="my-6 flex items-center gap-3">
-        <span className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs text-slate-400">or</span>
-        <span className="h-px flex-1 bg-slate-200" />
-      </div>
-      <p className="text-center text-[13px] text-slate-500">
+      <p className="mt-6 text-center text-[13px] text-slate-500">
         Don&apos;t have an account?{" "}
         <Link href="/register" className="font-medium text-brand-600 hover:underline">
           Start free today

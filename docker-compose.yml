@@ -1,0 +1,215 @@
+# =============================================================================
+# Zentro-ZIMS — Production-Ready Docker Compose Stack
+# =============================================================================
+# Services:
+#   postgres  — PostgreSQL 16 (primary datastore)
+#   redis     — Redis 7 (cache, Celery broker, session store)
+#   api       — FastAPI backend (auto-migrates on startup)
+#   nginx     — Reverse proxy + static file serving
+#
+# Usage:
+#   docker compose up --build -d        # Start all services
+#   docker compose logs -f api          # Tail API logs
+#   docker compose down -v              # Stop + remove volumes
+# =============================================================================
+
+version: "3.9"
+
+x-api-env: &api-env
+  APP_ENV: ${APP_ENV:-production}
+  APP_NAME: ${APP_NAME:-Zentro ZIMS}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://zims:zims@postgres:5432/zims}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+  CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+  CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+  SECRET_KEY: ${SECRET_KEY}
+  ALGORITHM: ${ALGORITHM:-HS256}
+  ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
+  RUN_ALEMBIC_ON_STARTUP: "true"
+  CORS_ORIGINS: ${CORS_ORIGINS:-["*"]}
+  # Optional integrations (blank = stub mode)
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+  TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+  TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+  TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM:-whatsapp:+14155238886}
+  STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+  STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+  SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
+  UPLOAD_DIR: ${UPLOAD_DIR:-/app/var/uploads}
+  MAX_DOCUMENT_SIZE_MB: ${MAX_DOCUMENT_SIZE_MB:-10}
+  MAX_IMPORT_FILE_SIZE_MB: ${MAX_IMPORT_FILE_SIZE_MB:-5}
+  RENEWAL_WINDOW_DAYS: ${RENEWAL_WINDOW_DAYS:-30}
+  RENEWAL_JOB_HOUR: ${RENEWAL_JOB_HOUR:-2}
+  RENEWAL_JOB_MINUTE: ${RENEWAL_JOB_MINUTE:-0}
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16 — Primary relational datastore
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: zims-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zims}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zims}
+      POSTGRES_DB: ${POSTGRES_DB:-zims}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/postgres-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zims} -d ${POSTGRES_DB:-zims}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - zims-network
+
+  # ---------------------------------------------------------------------------
+  # Redis 7 — Cache, Celery broker, rate-limiting store
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: zims-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - zims-network
+
+  # ---------------------------------------------------------------------------
+  # FastAPI Backend — Auto-migrates on startup via lifespan
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: zims-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      <<: *api-env
+    volumes:
+      - uploads_data:/app/var/uploads
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - zims-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+
+  # ---------------------------------------------------------------------------
+  # Nginx — Reverse proxy, SSL termination, static files
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: zims-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - uploads_data:/var/www/uploads:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - zims-network
+
+  # ---------------------------------------------------------------------------
+  # (Phase 3+) Celery Worker — Background task processor
+  # Uncomment when Celery tasks are implemented.
+  # ---------------------------------------------------------------------------
+  # worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: production
+  #   container_name: zims-worker
+  #   restart: unless-stopped
+  #   command: celery -A app.workers.celery_app worker -l info -c 2
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     <<: *api-env
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - zims-network
+
+  # ---------------------------------------------------------------------------
+  # (Phase 3+) Celery Beat — Periodic task scheduler
+  # Uncomment when Celery beat is implemented.
+  # ---------------------------------------------------------------------------
+  # beat:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: production
+  #   container_name: zims-beat
+  #   restart: unless-stopped
+  #   command: celery -A app.workers.celery_app beat -l info -s /tmp/celerybeat-schedule
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     <<: *api-env
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   networks:
+  #     - zims-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads_data:
+    driver: local
+  nginx_cache:
+    driver: local
+
+networks:
+  zims-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

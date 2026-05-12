@@ -1,0 +1,17 @@
+.git
+.gitignore
+.gcloudignore
+
+web/.next
+web/node_modules
+web/.turbo
+web/.vercel
+web/out
+
+node_modules
+__pycache__
+*.pyc
+.pytest_cache
+.env
+.env.*
+zims.db
