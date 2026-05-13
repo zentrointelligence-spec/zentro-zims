@@ -277,3 +277,31 @@
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
 }
+
+@keyframes gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.4 0.02 286 / 0.4);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.5 0.04 277 / 0.6);
+}
+
+/* Smooth focus rings */
+:focus-visible {
+  outline: 2px solid oklch(0.68 0.16 277 / 0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
