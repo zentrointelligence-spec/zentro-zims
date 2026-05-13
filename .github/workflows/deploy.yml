@@ -1,0 +1,156 @@
+# =============================================================================
+# Zentro-ZIMS — Auto-Deploy to Google Cloud Run
+# =============================================================================
+# Triggers on push to main only.
+# Path filters ensure each service deploys only when its files change.
+#
+# Required GitHub Secrets:
+#   GCP_SA_KEY              — Service account JSON key (Cloud Run deployer)
+#   NEXT_PUBLIC_ZIMS_API_URL — Backend Cloud Run URL (for frontend build)
+#
+# Service account needs these roles on project zentro-zims:
+#   - Cloud Run Admin
+#   - Cloud Build Editor
+#   - Service Account User
+#   - Storage Admin (for Cloud Build artifacts)
+# =============================================================================
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PROJECT_ID: zentro-zims
+  REGION: asia-southeast1
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Detect which services have changed
+  # ---------------------------------------------------------------------------
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'app/**'
+              - 'alembic/**'
+              - 'alembic.ini'
+              - 'requirements.txt'
+              - 'Dockerfile'
+              - 'scripts/deploy-cloud-run.sh'
+            frontend:
+              - 'web/**'
+              - '!web/.gitignore'
+
+  # ---------------------------------------------------------------------------
+  # Deploy Backend → Cloud Run (zims-api)
+  # ---------------------------------------------------------------------------
+  deploy-backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy zims-api \
+            --source . \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --quiet
+
+      - name: Get backend URL
+        id: backend-url
+        run: |
+          URL=$(gcloud run services describe zims-api \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "✅ Backend deployed: $URL"
+
+  # ---------------------------------------------------------------------------
+  # Deploy Frontend → Cloud Run (zims-web)
+  # ---------------------------------------------------------------------------
+  deploy-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy frontend to Cloud Run
+        run: |
+          gcloud run deploy zims-web \
+            --source ./web \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --set-env-vars="NEXT_PUBLIC_ZIMS_API_URL=${{ secrets.NEXT_PUBLIC_ZIMS_API_URL }}" \
+            --quiet
+
+      - name: Get frontend URL
+        run: |
+          URL=$(gcloud run services describe zims-web \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --format='value(status.url)')
+          echo "✅ Frontend deployed: $URL"
+
+  # ---------------------------------------------------------------------------
+  # Summary
+  # ---------------------------------------------------------------------------
+  summary:
+    needs: [changes, deploy-backend, deploy-frontend]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Changed | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend (zims-api) | ${{ needs.changes.outputs.backend }} | ${{ needs.deploy-backend.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend (zims-web) | ${{ needs.changes.outputs.frontend }} | ${{ needs.deploy-frontend.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
